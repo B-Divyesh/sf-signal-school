@@ -1,5 +1,35 @@
 # Signal School handoff
 
+## Repair 3 — complete
+
+The intermittent V3-01 claim check is repaired and the current candidate passes its local and live gates. Static implementation `b21d658fe61e4fbe7de93ddadc8a99d96017f2c8` is deployed at <https://signal-school.sociobot.in> by successful deployment `172b1cbf-c642-46ea-ba62-31a2320aa632`. The product-owned room service was not changed; live `/health` still reports implementation `fa23702117cc348325df2225356251d5cf53bc31` and durable storage `/data`.
+
+### Repairs
+
+- `demo-isolation` no longer assumes two valid run documents must serialize differently. It saves a real West-route result, plays a demo Split-route result, resets the demo, returns to the real game, and checks the saved real outcome is unchanged. The declared command passed once in the clean claim run and 20 consecutive repetitions across desktop and phone.
+- The claim sandbox description now names that observable sequence instead of a serialized-value comparison.
+- The performance audit found undersized phone navigation and demo controls. Those targets now measure at least 44×44 CSS pixels. The phone regression measures every visible header, demo-banner, and game button while retaining 192 pixels of the active board in the first 390×844 viewport.
+
+### Verification
+
+- Clean setup: `npm ci` completed with no vulnerabilities. Every one of the 23 commands in `.factory/claims.json` passed individually on final commit `b21d658`.
+- Aggregate gates: `npm run test:all` passed 7 unit tests and 34 Playwright checks with 2 expected device skips, then passed realtime TypeScript and Vite builds. `npm run realtime:test` passed 2 SQLite/WebSocket integration tests.
+- Production output: 11.14 KB gzip JavaScript, 4.18 KB gzip CSS, 44.89 KB local WOFF2 fonts, and 168,515 bytes across `dist/`.
+- Final cold URL check: `verify-url.sh` returned HTTP 200 for `/demo`, title **Demo — Signal School**, `lang="en"`, one h1, a main landmark, no missing image alternatives or unnamed buttons, and no console errors.
+- Fresh desktop: the first view showed the job, audience, sample action, persistent demo label, practice teammates, and populated board. Split / Split / Read + split reached **Six signals delivered**; a West route run reached **Run ended**; restart returned to Round 1.
+- Live isolation: a real West result remained at round 2 with one signal after a demo Split result was reset to round 1 with zero signals. **Start for real** reopened the unchanged West result.
+- Fresh 390×844 phone: job, audience, sample action, and 192 pixels of the active board were visible. All tested interactive targets were at least 44×44 pixels; reduced motion was active; key `1` advanced the round; no console error occurred.
+- Live accessibility and performance: Playwright axe found no serious or critical issue. Lighthouse scored 100 performance, 100 accessibility, 100 best practices, and 100 SEO; LCP was 1.1 s, CLS was 0, and total blocking time was 0 ms.
+- Live routes: Privacy and Terms returned their route titles and reached the landing-page **How a run works** and **Twelve more topologies** sections. `/not-a-route` returned the designed page with deliberate HTTP 404 and its own title.
+- Live privacy: the completed sample contacted only `https://signal-school.sociobot.in`; no normal-route console error was recorded.
+- Live multiplayer: two independent fresh clients received Relay runner and Weather reader views. Guest refresh restored the room, and both clients reached shared win, loss, and restart states. The service returned 429 with `Retry-After` after its allowance.
+
+Evidence is in `/work/.evidence/signal-school-repair-3/`, including final URL verification, Lighthouse JSON, desktop/phone captures, shared win/loss captures, and the live check summary. `.factory/catalog-description.txt` is 90 characters, starts with a verb, and is copied to `/work/.evidence/catalog-description.txt`.
+
+### Remaining external dependency
+
+The Scenario Set remains a one-time paid deliverable with twelve cards and four rotating role views. Its offer is not registered, so price, currency, checkout, and activation remain unavailable and are not guessed. The free game and real rooms still work. Operator metadata is at `/work/.evidence/billing-offer.json`; the product keeps the Sociobot license-validation path.
+
 ## Verification 3 — FAIL
 
 Independent QA reviewed deployed static implementation `a0c3d29f060f3ae43a3f58103a36cd84e4133a2d`, realtime implementation `fa23702117cc348325df2225356251d5cf53bc31`, and documentation revision `ec45e98359cabdd49f58549f627516f628632b74`.
