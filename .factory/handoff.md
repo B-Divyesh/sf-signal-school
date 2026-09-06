@@ -1,5 +1,33 @@
 # Signal School handoff
 
+## Repair 2 — complete
+
+Static implementation, claims, tests, and documentation are committed and pushed as `a0c3d29f060f3ae43a3f58103a36cd84e4133a2d`. Static deployment `66f1deb4-9ec1-4693-93e5-ae4b473b1932` completed successfully to `https://signal-school.sociobot.in`. The room service has no code change and remains on its proven durable one-replica implementation `fa23702117cc348325df2225356251d5cf53bc31`, with SQLite at `/data`.
+
+### Repairs
+
+- Header links now use absolute landing fragments (`/#how-to-play` and `/#scenario-set`), so they work from Privacy and Terms. Mobile keeps all four header links visible; the 390px board is still visible in the first viewport.
+- `.factory/claims.json` now has 23 public claims, each with exactly one outcome-based `@claim:` test. New coverage includes two-to-four-player limits, durable room restart, pause behavior, eight free cards, profile/tracker-free sample play, browser-local practice reload, populated sample readiness, game-not-course ending, unavailable Scenario Set, and leaving a room.
+- The shared-room browser path now proves both a real shared win and loss before restart. The service integration proves a fifth player is rejected and its SQLite room survives a restart.
+- The public copy no longer makes an untestable price statement while the external one-time offer is unregistered. The Scenario Set remains built in and unavailable for checkout or activation.
+
+### Verification
+
+- Clean setup: `npm ci`, then all 23 commands declared in `.factory/claims.json` passed individually. `npm test` passed 7 tests; `npm run realtime:test` passed 2 integration tests; `npm run test:browser` passed 34 checks with 2 expected phone-only skips; `npm run realtime:build` and `npm run build` passed.
+- Production output: 11,123 B gzip JavaScript, 4,157 B gzip CSS, and 44,892 B local WOFF2 fonts. Static artifacts total 168,272 B.
+- Live desktop `/demo`: first screen states the job, audience, and first action; the populated board, sample banner, and practice teammates appear immediately. Split / Split / Read + split reached **Six signals delivered** with its queue debrief. **Reset demo** returned to Round 1.
+- Live 390×844 phone `/demo`: all header links are visible; the board begins at 610px and supplies 198px of board content in the initial viewport. Reduced motion set `data-reduce-motion="true"`; key `1` advanced to Round 2.
+- Live legal navigation: Privacy → **How to play** reaches **How a run works**; Terms → **Scenario set** reaches **Twelve more topologies**. `verify-url.sh` passed for live `/demo` with no console errors, correct title/language, one h1, main, image alternatives, and labelled controls. Live Playwright axe found no serious or critical violations.
+- Live privacy: a complete fresh demo requested only `https://signal-school.sociobot.in`; its deployed CSP allows only self-hosted assets plus the product-owned room WebSocket. No default analytics/tracker, remote font, or script request was observed.
+- Live rooms: two independent fresh clients received Relay runner and Weather reader views. The guest refreshed into the same room; both clients then completed a shared win, host restart, shared loss, and restart. `/health` reports the existing realtime SHA and `storage: "/data"`. The service returned `429` with `Retry-After: 48` after its allowance.
+- Live routes: `/`, `/demo`, `/privacy`, and `/terms` return 200. `/not-a-route` returns the designed **Page not found** page with deliberate HTTP 404 and its route-specific title. The browser records the expected failed-navigation resource message for that deliberate 404; normal `/demo` has no console errors.
+
+Evidence is in `/work/.evidence/signal-school-repair-2/`, including desktop/phone entry and end-state screenshots, room win/loss screenshots, and the live `verify-url.sh` report. `/work/.evidence/catalog-description.txt` matches `.factory/catalog-description.txt`.
+
+### Remaining external dependency
+
+The Scenario Set one-time offer is still not registered. Checkout, activation, price, and currency are therefore unavailable and were not guessed. Public metadata for the commercial operator is at `/work/.evidence/billing-offer.json`; it preserves the paid cards and the Sociobot license-validation path while the free core and real rooms remain usable.
+
 ## Review 1
 
 Fresh strict QA on 2026-09-06 is a **FAIL**: 2 findings and 0 untested declared claims. The static implementation reviewed is `67d76b89bee43ee04c366518a15a2f67f8879baa`; realtime is `fa23702117cc348325df2225356251d5cf53bc31`; the report/documentation revision is `92beb0b71b3b5d57453cd4a96b231e359a2b780c`.
