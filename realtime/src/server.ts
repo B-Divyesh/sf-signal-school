@@ -1,5 +1,5 @@
 import { createServer, type IncomingMessage, type Server as HttpServer, type ServerResponse } from 'node:http';
-import { existsSync, mkdirSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import Database from 'better-sqlite3';
 import { WebSocket, WebSocketServer } from 'ws';
@@ -27,10 +27,20 @@ const validName = (value: unknown) => typeof value === 'string' && value.trim().
 const validId = (value: unknown) => typeof value === 'string' && /^[a-zA-Z0-9-]{8,64}$/.test(value);
 const validCode = (value: unknown) => typeof value === 'string' && /^[A-Z0-9]{6}$/.test(value);
 
-function dataPath() {
+function durableDataPath() {
   const candidate = process.env.DATA_DIR || (existsSync('/data') ? '/data' : resolve('realtime/data'));
   mkdirSync(candidate, { recursive: true });
   return join(candidate, 'rooms.sqlite');
+}
+
+function openPaths(explicitPath?: string) {
+  if (explicitPath) return { workingPath: explicitPath, durablePath: null as string | null };
+  const durablePath = durableDataPath();
+  const workingDirectory = '/tmp/signal-school-realtime';
+  const workingPath = join(workingDirectory, 'rooms.sqlite');
+  mkdirSync(workingDirectory, { recursive: true });
+  if (existsSync(durablePath) && statSync(durablePath).size > 0) copyFileSync(durablePath, workingPath);
+  return { workingPath, durablePath };
 }
 
 function requestIp(request: IncomingMessage) {
@@ -43,11 +53,9 @@ function originAllowed(origin: string | undefined) {
 }
 
 export function createRealtimeServer(options: RealtimeOptions = {}): RealtimeInstance {
-  const databasePath = options.databasePath || dataPath();
-  mkdirSync(dirname(databasePath), { recursive: true });
-  const db = new Database(databasePath);
-  // This service is pinned to one replica. Keeping one exclusive SQLite
-  // connection avoids Azure Files' unreliable shared-lock negotiation.
+  const { workingPath, durablePath } = openPaths(options.databasePath);
+  mkdirSync(dirname(workingPath), { recursive: true });
+  const db = new Database(workingPath);
   db.pragma('locking_mode = EXCLUSIVE');
   db.pragma('journal_mode = DELETE');
   db.pragma('busy_timeout = 5000');
@@ -64,6 +72,13 @@ export function createRealtimeServer(options: RealtimeOptions = {}): RealtimeIns
     );
     CREATE INDEX IF NOT EXISTS players_by_room ON players(room_code);
   `);
+  const persist = () => {
+    if (!durablePath) return;
+    const stagingPath = `${durablePath}.next`;
+    writeFileSync(stagingPath, db.serialize());
+    renameSync(stagingPath, durablePath);
+  };
+  persist();
 
   const rooms = {
     get: db.prepare('SELECT * FROM rooms WHERE code = ?'),
@@ -95,7 +110,10 @@ export function createRealtimeServer(options: RealtimeOptions = {}): RealtimeIns
 
   const roomFor = (code: string) => rooms.get.get(code) as RoomRow | undefined;
   const listPlayers = (code: string) => players.list.all(code) as PlayerRow[];
-  const writeRoom = (room: RoomRow) => rooms.update.run({ ...room, updated_at: now() });
+  const writeRoom = (room: RoomRow) => {
+    rooms.update.run({ ...room, updated_at: now() });
+    persist();
+  };
   const reply = (socket: WebSocket, payload: unknown) => { if (socket.readyState === WebSocket.OPEN) socket.send(json(payload)); };
   const error = (socket: WebSocket, message: string) => reply(socket, { type: 'error', message });
   const ownIntel = (role: string, round: number) => {
@@ -144,6 +162,7 @@ export function createRealtimeServer(options: RealtimeOptions = {}): RealtimeIns
       rooms.insert.run(room);
       players.insert.run(code, message.clientId, String(message.name).trim(), roles[0][0], 1);
     })();
+    persist();
     markConnection(connection, code, String(message.clientId));
     broadcast(code);
   };
@@ -161,6 +180,7 @@ export function createRealtimeServer(options: RealtimeOptions = {}): RealtimeIns
         players.insert.run(code, message.clientId, String(message.name).trim(), roles[index][0], 0);
       }
     })();
+    persist();
     markConnection(connection, code, String(message.clientId));
     broadcast(code);
   };
@@ -225,7 +245,7 @@ export function createRealtimeServer(options: RealtimeOptions = {}): RealtimeIns
       const limit = rateAllowed(requestIp(request));
       if (!limit.allowed) { setHeaders(); response.writeHead(429, { 'Content-Type': 'application/json; charset=utf-8', 'Retry-After': String(limit.retry) }); return response.end(json({ error: 'Rate limit exceeded. Try again after the stated delay.' })); }
     }
-    if (request.method === 'GET' && url.pathname === '/health') return send(200, { ok: true, build: options.buildSha || process.env.BUILD_SHA || 'dev', storage: databasePath.startsWith('/data/') ? '/data' : 'local' });
+    if (request.method === 'GET' && url.pathname === '/health') return send(200, { ok: true, build: options.buildSha || process.env.BUILD_SHA || 'dev', storage: durablePath ? '/data' : 'local' });
     const roomMatch = /^\/rooms\/([A-Z0-9]{6})$/.exec(url.pathname);
     if (request.method === 'GET' && roomMatch) return send(roomFor(roomMatch[1]) ? 200 : 404, { exists: Boolean(roomFor(roomMatch[1])) });
     return send(404, { error: 'Not found' });
@@ -260,6 +280,7 @@ export function createRealtimeServer(options: RealtimeOptions = {}): RealtimeIns
       connections.delete(connection);
       if (connection.code && connection.clientId) {
         players.disconnect.run(connection.code, connection.clientId);
+        persist();
         broadcast(connection.code);
       }
     });
@@ -271,7 +292,8 @@ export function createRealtimeServer(options: RealtimeOptions = {}): RealtimeIns
     close: async () => new Promise((resolveClose, rejectClose) => {
       for (const connection of connections) connection.socket.terminate();
       websocket.close(() => http.close((errorClose) => {
-        db.close();
+      persist();
+      db.close();
         return errorClose ? rejectClose(errorClose) : resolveClose();
       }));
     })
