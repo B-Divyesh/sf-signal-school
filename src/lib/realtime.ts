@@ -15,6 +15,19 @@ export type RoomState = {
 type Message = { type: string; [key: string]: unknown };
 
 const roomKey = 'signal-school:room-client';
+const roomSessionKey = 'signal-school:room-session';
+
+export type RoomSession = { code: string; name: string };
+
+export const loadRoomSession = (): RoomSession | null => {
+  try {
+    const value = JSON.parse(localStorage.getItem(roomSessionKey) || 'null') as RoomSession | null;
+    return value && /^[A-Z0-9]{6}$/.test(value.code) && value.name.trim().length > 0 ? value : null;
+  } catch { return null; }
+};
+
+const saveRoomSession = (session: RoomSession) => localStorage.setItem(roomSessionKey, JSON.stringify(session));
+const clearRoomSession = () => localStorage.removeItem(roomSessionKey);
 
 const clientId = () => {
   let id = localStorage.getItem(roomKey);
@@ -50,6 +63,22 @@ export class RoomClient {
   choose(choice: string) { this.send({ type: 'choose', clientId: clientId(), code: this.currentCode, choice }); }
   restart() { this.send({ type: 'restart', clientId: clientId(), code: this.currentCode }); }
 
+  resumeSaved() {
+    const session = loadRoomSession();
+    if (!session) return false;
+    this.currentCode = session.code;
+    this.name = session.name;
+    this.open(() => this.send({ type: 'resume', clientId: clientId(), code: this.currentCode, name: this.name }));
+    return true;
+  }
+
+  leave() {
+    clearRoomSession();
+    this.currentCode = '';
+    this.name = '';
+    this.close();
+  }
+
   close() {
     this.shouldReconnect = false;
     this.socket?.close();
@@ -65,9 +94,13 @@ export class RoomClient {
     socket.addEventListener('open', afterOpen, { once: true });
     socket.addEventListener('message', (event) => this.receive(JSON.parse(String(event.data)) as Message));
     socket.addEventListener('close', () => {
+      if (this.socket !== socket) return;
+      this.socket = null;
       if (this.shouldReconnect && this.currentCode) {
         this.onStatus('Connection dropped. Rejoining this room…');
-        window.setTimeout(() => this.open(() => this.send({ type: 'resume', clientId: clientId(), code: this.currentCode, name: this.name })), 1100);
+        window.setTimeout(() => {
+          if (this.shouldReconnect && this.currentCode) this.open(() => this.send({ type: 'resume', clientId: clientId(), code: this.currentCode, name: this.name }));
+        }, 1100);
       }
     });
     socket.addEventListener('error', () => this.onStatus('Room service is unavailable. Try again in a moment.'));
@@ -83,9 +116,16 @@ export class RoomClient {
     if (message.type === 'state') {
       const state = message.state as RoomState;
       this.currentCode = state.code;
+      if (!this.name) this.name = state.players.find((player) => player.id === clientId())?.name || 'Signal keeper';
+      saveRoomSession({ code: state.code, name: this.name });
       this.onStatus(`Room ${state.code} is connected.`);
       this.onState(state);
     } else if (message.type === 'error') {
+      if (String(message.message).includes('room code does not exist') || String(message.message).includes('saved room session')) {
+        clearRoomSession();
+        this.currentCode = '';
+        this.name = '';
+      }
       this.onStatus(String(message.message));
     }
   }

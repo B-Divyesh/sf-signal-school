@@ -3,14 +3,14 @@
     "id": "three-round-ending",
     "claim": "A practice run ends after three rounds.",
     "where": "game board, README",
-    "test": "npm test -- --grep @claim:three-round-ending",
+    "test": "npm test -- -t @claim:three-round-ending",
     "sandbox": "start a fresh deterministic practice run and submit the successful route three times"
   },
   {
     "id": "restart-reset",
     "claim": "Restart clears the prior practice run.",
     "where": "end screen, README",
-    "test": "npm test -- --grep @claim:restart-reset",
+    "test": "npm test -- -t @claim:restart-reset",
     "sandbox": "complete one round, restart, then inspect the active round and delivered count"
   },
   {
@@ -18,7 +18,7 @@
     "claim": "The Scenario Set contains twelve more topology cards with rotating role views.",
     "where": "Scenario Set section, README",
     "test": "npm run test:browser -- --grep @claim:scenario-set-content",
-    "sandbox": "open the landing page and count the visible Scenario Set topology cards"
+    "sandbox": "open the landing page, count the visible Scenario Set topology cards, and inspect the four displayed role views"
   },
   {
     "id": "demo-isolation",
@@ -70,17 +70,31 @@
     "sandbox": "open each route and read the browser title and fallback heading"
   },
   {
+    "id": "game-content",
+    "claim": "Signal School includes twenty finished topology cards.",
+    "where": "README, quality documentation",
+    "test": "npm test -- -t @claim:game-content",
+    "sandbox": "load the shipped scenario inventory and verify twenty distinct three-round topology cards"
+  },
+  {
+    "id": "phone-frame-rate",
+    "claim": "The 390px phone check maintains 60 fps within a five-fps measurement margin under four-times CPU throttling.",
+    "where": "quality documentation",
+    "test": "npm run test:browser -- --grep @claim:phone-frame-rate",
+    "sandbox": "run the active demo in Chromium at 390px with four-times CPU throttling and measure requestAnimationFrame intervals"
+  },
+  {
     "id": "online-rooms",
     "claim": "Online rooms give real clients different role views, recover a reconnect, and resolve shared runs.",
     "where": "online room panel, README",
-    "test": "npm test -- --grep @claim:online-rooms",
-    "sandbox": "start product-owned local WebSocket service, connect independent clients, rejoin one, agree three routes, restart, then reopen durable SQLite state"
+    "test": "npm run test:browser -- --grep @claim:online-rooms",
+    "sandbox": "start the product-owned local WebSocket service, use two independent browser clients, reload one client, agree three routes, and restart the shared room"
   },
   {
     "id": "room-rate-limit",
     "claim": "The room service returns 429 with Retry-After after its request allowance.",
     "where": "service quality documentation",
-    "test": "npm test -- --grep @claim:room-rate-limit",
+    "test": "npm test -- -t @claim:room-rate-limit",
     "sandbox": "send requests past the service allowance and inspect the final HTTP status and header"
   }
 ]

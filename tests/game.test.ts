@@ -1,4 +1,4 @@
-import { chooseRoute, freshRun, premiumScenarioSet, restartRun, startRun } from '../src/lib/game';
+import { allScenarios, chooseRoute, freshRun, freeScenarioCount, premiumScenarioSet, restartRun, startRun } from '../src/lib/game';
 import { describe, expect, it } from 'vitest';
 
 describe('practice run rules', () => {
@@ -23,7 +23,14 @@ describe('practice run rules', () => {
     expect(restarted.choices).toEqual([]);
   });
 
-  it('provides twelve different paid topology cards', () => {
+  it('@claim:game-content provides twenty finished topology cards across practice and the Scenario Set', () => {
+    expect(allScenarios).toHaveLength(20);
+    expect(freeScenarioCount).toBe(8);
+    expect(allScenarios.every((scenario) => scenario.rounds.length === 3)).toBe(true);
+    expect(new Set(allScenarios.map((scenario) => scenario.topology)).size).toBe(20);
+  });
+
+  it('provides twelve different paid topology cards with four role views', () => {
     expect(premiumScenarioSet).toHaveLength(12);
     expect(new Set(premiumScenarioSet.map((scenario) => scenario.topology)).size).toBe(12);
     expect(new Set(premiumScenarioSet.map((scenario) => scenario.role)).size).toBe(4);

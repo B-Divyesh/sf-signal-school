@@ -1,0 +1,72 @@
+.scenario-cards small {
+  display: block;
+  margin-top: .35rem;
+  color: var(--muted);
+  font-size: .69rem;
+  line-height: 1.35;
+}
+
+.room-result {
+  margin: 1rem 0;
+  padding: .85rem;
+  border-left: 3px solid var(--foam);
+  background: rgba(145,216,191,.1);
+}
+
+.room-result.lost { border-color: var(--coral); }
+.room-result h3 { font-size: 1.05rem; }
+.room-result p { margin: .35rem 0 0; color: var(--muted); }
+
+@media (min-width: 881px) {
+  .first-screen { grid-template-columns: minmax(320px, .8fr) minmax(520px, 1.2fr); }
+  h1 { font-size: clamp(3.1rem, 4.35vw, 4rem); }
+}
+
+@media (max-width: 560px) {
+  .site-header { min-height: 56px; padding: .5rem 0; align-items: center; }
+  .wordmark { font-size: 1.05rem; }
+  .wordmark span { font-size: 1.25rem; }
+  .site-header nav { gap: .7rem; }
+
+  .demo-banner {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    justify-items: center;
+    gap: .3rem .55rem;
+    padding: .4rem .65rem;
+  }
+  .demo-banner strong { grid-column: 1 / -1; font-size: .74rem; }
+  .demo-banner span { display: none; }
+  .demo-banner .quiet-button { min-height: 30px; padding: .3rem .45rem; }
+  .demo-banner a { min-height: 30px; font-size: .75rem; display: grid; place-items: center; }
+
+  .first-screen { padding: .75rem 0 2rem; gap: 1rem; }
+  .intro-copy { max-width: none; }
+  .intro-copy > .eyebrow { display: none; }
+  h1 { font-size: 2.35rem; line-height: 1.02; }
+  .lede { font-size: 1rem; line-height: 1.4; margin: .65rem 0; }
+  .intro-actions { margin: .7rem 0; gap: .45rem; }
+  .intro-actions .primary-button { min-height: 44px; padding: .55rem .75rem; }
+  .intro-actions span { font-size: .72rem; max-width: 10rem; }
+  .facts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .25rem;
+    margin: .65rem 0;
+    font-size: .68rem;
+    line-height: 1.25;
+  }
+  .facts li:before { padding-right: .25rem; }
+
+  .game-topline { padding: .7rem .8rem; }
+  .game-topline h2 { font-size: 1.3rem; }
+  .game-topline .eyebrow { font-size: .64rem; margin-bottom: .3rem; }
+  .game-topline p:not(.eyebrow) { font-size: .67rem; }
+  .storm-clock { margin-top: .45rem; padding-top: .35rem; }
+  .storm-board { min-height: 198px; }
+  .storm-board svg { height: 180px; }
+  .map-caption { padding: .42rem .65rem; font-size: .64rem; }
+  .round-panel { padding: .85rem; }
+  .game-tools { padding: .55rem .75rem; }
+  .scenario-cards { grid-template-columns: 1fr 1fr; }
+  .scenario-cards li { font-size: .7rem; }
+}

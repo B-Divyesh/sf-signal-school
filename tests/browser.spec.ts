@@ -66,12 +66,90 @@ test('@claim:route-titles sets titles for demo, legal pages, and the designed 40
   await page.goto('/terms');
   await expect(page).toHaveTitle('Terms — Signal School');
   await page.goto('/not-a-route');
+  await expect(page).toHaveTitle('Page not found — Signal School');
   await expect(page.getByRole('heading', { name: 'Page not found' })).toBeVisible();
 });
 
-test('@claim:scenario-set-content shows twelve additional topology cards', async ({ page }) => {
+test('@claim:scenario-set-content shows twelve additional topology cards with rotating role views', async ({ page }) => {
   await page.goto('/');
   const cards = page.locator('.scenario-cards li');
   await expect(cards).toHaveCount(12);
-  expect(await cards.allTextContents()).toEqual(expect.arrayContaining(['Glass Causeway', 'Echo Station']));
+  expect(await page.locator('.scenario-cards li > b').allTextContents()).toEqual(expect.arrayContaining(['Glass Causeway', 'Echo Station']));
+  expect(new Set(await cards.evaluateAll((items) => items.map((item) => item.getAttribute('data-role-view'))))).toEqual(new Set(['Signal keeper', 'Harbor clerk', 'Weather reader', 'Relay runner']));
+});
+
+test('the phone demo shows a usable relay board in its first viewport', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'phone', 'This layout check is specific to the 390px phone project.');
+  await page.goto('/demo');
+  const board = await page.locator('.storm-board').evaluate((element) => {
+    const bounds = element.getBoundingClientRect();
+    return { top: bounds.top, bottom: bounds.bottom, viewport: window.innerHeight };
+  });
+  expect(board.top).toBeLessThan(board.viewport);
+  expect(Math.min(board.bottom, board.viewport) - board.top).toBeGreaterThan(140);
+});
+
+test('@claim:phone-frame-rate keeps the active phone demo within the 60 fps measurement margin', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'phone', 'The 390px phone project is the stated measurement environment.');
+  const session = await page.context().newCDPSession(page);
+  await session.send('Emulation.setCPUThrottlingRate', { rate: 4 });
+  await page.goto('/demo');
+  const frameIntervals = await page.evaluate(async () => new Promise<number[]>((resolve) => {
+    const intervals: number[] = [];
+    let previous = performance.now();
+    const frame = (now: number) => {
+      intervals.push(now - previous);
+      previous = now;
+      if (intervals.length === 120) resolve(intervals);
+      else requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  }));
+  await session.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+  const stableFrames = frameIntervals.slice(12).sort((left, right) => left - right);
+  const medianInterval = stableFrames[Math.floor(stableFrames.length / 2)];
+  expect(1000 / medianInterval).toBeGreaterThanOrEqual(55);
+});
+
+test('@claim:online-rooms restores a shared room after a real browser refresh and resolves a run', async ({ browser }) => {
+  const hostContext = await browser.newContext();
+  const guestContext = await browser.newContext();
+  const host = await hostContext.newPage();
+  const guest = await guestContext.newPage();
+  try {
+    await host.goto('/');
+    const createForm = host.locator('[data-form="create-room"]');
+    await createForm.getByLabel('Your name').fill('Ari');
+    await createForm.getByRole('button', { name: 'Create room' }).click();
+    const roomHeading = host.getByRole('heading', { name: /Room [A-Z0-9]{6}/ });
+    await expect(roomHeading).toBeVisible();
+    const code = (await roomHeading.textContent())!.replace('Room ', '');
+
+    await guest.goto('/');
+    const joinForm = guest.locator('[data-form="join-room"]');
+    await joinForm.getByLabel('Room code').fill(code);
+    await joinForm.getByLabel('Your name').fill('Bo');
+    await joinForm.getByRole('button', { name: 'Join room' }).click();
+    await expect(guest.getByRole('heading', { name: `Room ${code}` })).toBeVisible();
+    await expect(host.locator('.room-players').getByText('Weather reader', { exact: true })).toBeVisible();
+    await expect(guest.locator('.room-panel > p').nth(1)).toContainText('Your role: Weather reader');
+
+    await guest.reload();
+    await expect(guest.getByRole('heading', { name: `Room ${code}` })).toBeVisible();
+    await expect(guest.locator('.room-panel > p').nth(1)).toContainText('Your role: Weather reader');
+    await expect(host.locator('.room-players').getByText('Bo', { exact: true })).toBeVisible();
+
+    await host.getByRole('button', { name: 'Start shared run' }).click();
+    for (let round = 0; round < 3; round += 1) {
+      await host.locator('.online-choices').getByRole('button', { name: /split/i }).click();
+      await guest.locator('.online-choices').getByRole('button', { name: /split/i }).click();
+      if (round < 2) await expect(host.getByText(`Round ${round + 2} is open.`)).toBeVisible();
+    }
+    await expect(guest.getByRole('heading', { name: 'Six signals delivered' })).toBeVisible();
+    await host.getByRole('button', { name: 'Restart shared run' }).click();
+    await expect(guest.getByText('Waiting for the room host to start.')).toBeVisible();
+  } finally {
+    await hostContext.close();
+    await guestContext.close();
+  }
 });

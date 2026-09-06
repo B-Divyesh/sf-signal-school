@@ -1,4 +1,5 @@
 import './styles.css';
+import './repairs.css';
 import { chooseRoute, currentRound, currentScenario, freeScenarioCount, freshRun, premiumScenarioSet, restartRun, startRun, tickRun, togglePause, type RunState } from './lib/game';
 import { clearRun, loadRun, loadSettings, saveRun, saveSettings, type Settings } from './lib/storage';
 import { RoomClient, type RoomState } from './lib/realtime';
@@ -40,7 +41,7 @@ function header() {
 }
 
 function footer() {
-  return `<footer><p>Signal routing for small groups. No profiles or default analytics.</p><nav aria-label="Footer"><a href="/privacy" data-route>Privacy</a><a href="/terms" data-route>Terms</a><a href="https://paramfactory.com" rel="noopener">Built by Param Factory</a></nav><p class="build">Build 1.0.0</p></footer>`;
+  return `<footer><p>Signal routing for small groups. No profiles or default analytics.</p><nav aria-label="Footer"><a href="/privacy" data-route>Privacy</a><a href="/terms" data-route>Terms</a><span>Built by Param Factory</span></nav><p class="build">Build 1.0.0</p></footer>`;
 }
 
 function gameBoard(state: RunState) {
@@ -83,7 +84,8 @@ function roomPanel() {
   const isHost = roomState?.players.find((player) => player.isHost)?.id === localStorage.getItem('signal-school:room-client');
   const ready = roomState && roomState.players.filter((player) => player.connected).length >= 2;
   const roundChoices = roomState?.phase === 'active' ? `<div class="route-choices online-choices">${['split', 'west', 'hold'].map((id, index) => `<button class="route-choice choice-${id}" data-room-choice="${id}"><b><span>${index + 1}</span> ${id === 'split' ? 'Split' : id === 'west' ? 'Direct' : 'Hold'}</b><small>Submit this plan to the room.</small></button>`).join('')}</div>` : '';
-  return `<section class="room-panel" aria-labelledby="room-title"><p class="eyebrow">Online room</p><h2 id="room-title">${roomState ? `Room ${roomState.code}` : 'Play with real teammates'}</h2>${roomState ? `<p>Your role: <b>${roomState.ownRole}</b>. ${roomState.ownIntel}</p><p>${roomState.note}</p><ul class="room-players">${playerRows}</ul>${roomState.phase === 'lobby' ? `<p>${ready ? 'Two or more players are connected.' : 'Invite one teammate before starting.'}</p>${isHost ? `<button class="primary-button" data-room-action="start" ${ready ? '' : 'disabled'}>Start shared run</button>` : '<p>Waiting for the room host to start.</p>'}` : ''}${roundChoices}${roomState.phase === 'ended' && isHost ? '<button class="primary-button" data-room-action="restart">Restart shared run</button>' : ''}` : `<p>Create a short-code room, then share the code. Each player gets a different role view.</p><form class="room-form" data-form="create-room"><label>Your name<input name="name" maxlength="24" required value="Signal keeper" /></label><button class="primary-button">Create room</button></form><form class="room-form" data-form="join-room"><label>Room code<input name="code" maxlength="6" required autocapitalize="characters" /></label><label>Your name<input name="name" maxlength="24" required value="Signal keeper" /></label><button class="secondary-button">Join room</button></form>`}<p class="status-note" aria-live="polite">${roomStatus}</p></section>`;
+  const result = roomState?.phase === 'ended' ? `<section class="room-result ${roomState.end}" aria-live="assertive"><h3>${roomState.end === 'won' ? 'Six signals delivered' : 'Shared run ended'}</h3><p>${roomState.note}</p></section>` : '';
+  return `<section class="room-panel" aria-labelledby="room-title"><p class="eyebrow">Online room</p><h2 id="room-title">${roomState ? `Room ${roomState.code}` : 'Play with real teammates'}</h2>${roomState ? `<p>Your role: <b>${roomState.ownRole}</b>. ${roomState.ownIntel}</p><p>${roomState.note}</p><ul class="room-players">${playerRows}</ul>${roomState.phase === 'lobby' ? `<p>${ready ? 'Two or more players are connected.' : 'Invite one teammate before starting.'}</p>${isHost ? `<button class="primary-button" data-room-action="start" ${ready ? '' : 'disabled'}>Start shared run</button>` : '<p>Waiting for the room host to start.</p>'}` : ''}${roundChoices}${result}${roomState.phase === 'ended' && isHost ? '<button class="primary-button" data-room-action="restart">Restart shared run</button>' : ''}<button class="quiet-button" data-room-action="leave">Leave room</button>` : `<p>Create a short-code room, then share the code. Each player gets a different role view.</p><form class="room-form" data-form="create-room"><label>Your name<input name="name" maxlength="24" required value="Signal keeper" /></label><button class="primary-button">Create room</button></form><form class="room-form" data-form="join-room"><label>Room code<input name="code" maxlength="6" required autocapitalize="characters" /></label><label>Your name<input name="name" maxlength="24" required value="Signal keeper" /></label><button class="secondary-button">Join room</button></form>`}<p class="status-note" aria-live="polite">${roomStatus}</p></section>`;
 }
 
 function landing() {
@@ -93,9 +95,10 @@ function landing() {
     if (demoMode && gameState.phase === 'lobby') gameState = startRun(gameState);
   }
   const state = gameState;
-  const premiumCards = premiumScenarioSet.map((scenario, index) => licenseState.status === 'valid' ? `<li><button class="quiet-button" data-premium="${index}">${scenario.name}</button></li>` : `<li>${scenario.name}</li>`).join('');
+  const premiumCards = premiumScenarioSet.map((scenario, index) => `<li data-role-view="${escapeHtml(scenario.role)}">${licenseState.status === 'valid' ? `<button class="quiet-button" data-premium="${index}">${scenario.name}</button>` : `<b>${scenario.name}</b>`}<small>${scenario.role} view: ${scenario.roleView}</small></li>`).join('');
   const premiumAccess = licenseState.status === 'valid' ? '<p class="unlock-note">Your verified license opens the Scenario Set.</p>' : '<p>The offer is not registered yet, so checkout and activation are unavailable.</p>';
-  return `${header()}${copyDemoBanner()}<main id="main" tabindex="-1"><section class="first-screen"><div class="intro-copy"><p class="eyebrow">Cooperative browser game</p><h1 tabindex="-1">Route signals together before the storm</h1><p class="lede">For small groups who want to discuss queues, bottlenecks, redundancy, and feedback while they play.</p><div class="intro-actions"><a class="primary-button" href="/demo" data-route>Try it with sample data</a><span>Opens a three-round practice run.</span></div><ul class="facts"><li>Two to four players</li><li>Three finite rounds</li><li>No profiles or default analytics</li></ul></div>${gameBoard(state)}</section><section class="online-section" aria-labelledby="online-heading"><div><p class="eyebrow">Real multiplayer</p><h2 id="online-heading">Coordinate in a room</h2><p>Share a short code. Your teammates see different network details.</p></div>${roomPanel()}</section><section id="how-to-play" class="how-section" aria-labelledby="how-heading"><p class="eyebrow">How to play</p><h2 id="how-heading">How a run works</h2><ol><li><b>Read your view.</b> Each role sees one part of the network.</li><li><b>Talk through routes.</b> Choose a route before the storm advances.</li><li><b>Review the result.</b> Three rounds end with one short debrief.</li></ol></section><section class="limits-section" aria-labelledby="limits-heading"><h2 id="limits-heading">What Signal School does not do</h2><p>It does not grade people, create learner profiles, connect to an LMS, or claim to certify skills.</p><p>Practice runs are stored in this browser. The sample run uses a separate storage area.</p></section><section id="scenario-set" class="scenario-section" aria-labelledby="set-heading"><p class="eyebrow">One-time scenario set</p><h2 id="set-heading">Twelve more topologies</h2><p>The built-in Scenario Set adds twelve topology cards and rotating role views. It is a one-time purchase when the offer is registered.</p>${premiumAccess}<ul class="scenario-cards" aria-label="Scenario Set topology cards">${premiumCards}</ul><p><a href="/terms" data-route>Read the offer terms</a></p></section></main>${footer()}`;
+  const online = demoMode ? '' : `<section class="online-section" aria-labelledby="online-heading"><div><p class="eyebrow">Real multiplayer</p><h2 id="online-heading">Coordinate in a room</h2><p>Share a short code. Your teammates see different network details.</p></div>${roomPanel()}</section>`;
+  return `${header()}${copyDemoBanner()}<main id="main" tabindex="-1"><section class="first-screen"><div class="intro-copy"><p class="eyebrow">Cooperative browser game</p><h1 tabindex="-1">Route signals together before the storm</h1><p class="lede">For small groups who want to discuss queues, bottlenecks, redundancy, and feedback while they play.</p><div class="intro-actions"><a class="primary-button" href="/demo" data-route>Try it with sample data</a><span>Opens a three-round practice run.</span></div><ul class="facts"><li>Two to four players</li><li>Three finite rounds</li><li>No profiles or default analytics</li></ul></div>${gameBoard(state)}</section>${online}<section id="how-to-play" class="how-section" aria-labelledby="how-heading"><p class="eyebrow">How to play</p><h2 id="how-heading">How a run works</h2><ol><li><b>Read your view.</b> Each role sees one part of the network.</li><li><b>Talk through routes.</b> Choose a route before the storm advances.</li><li><b>Review the result.</b> Three rounds end with one short debrief.</li></ol></section><section class="limits-section" aria-labelledby="limits-heading"><h2 id="limits-heading">What Signal School does not do</h2><p>It does not grade people, create learner profiles, connect to an LMS, or claim to certify skills.</p><p>Practice runs are stored in this browser. The sample run uses a separate storage area.</p></section><section id="scenario-set" class="scenario-section" aria-labelledby="set-heading"><p class="eyebrow">One-time scenario set</p><h2 id="set-heading">Twelve more topologies</h2><p>The built-in Scenario Set adds twelve topology cards and rotating role views. It is a one-time purchase when the offer is registered.</p>${premiumAccess}<ul class="scenario-cards" aria-label="Scenario Set topology cards">${premiumCards}</ul><p><a href="/terms" data-route>Read the offer terms</a></p></section></main>${footer()}`;
 }
 
 function legalPage(kind: 'privacy' | 'terms') {
@@ -112,6 +115,12 @@ function notFound() {
 
 function renderRoute(moveFocus = false) {
   const path = location.pathname;
+  if (isDemoRoute() && roomClient) {
+    roomClient.close();
+    roomClient = null;
+    roomState = null;
+    roomStatus = '';
+  }
   if (path === '/' || path === '/demo') {
     setTitle(path === '/demo' ? 'Demo — Signal School' : 'Signal School — route signals together', 'A cooperative signal-routing game for two to four players.');
     app.innerHTML = landing();
@@ -160,6 +169,13 @@ function bindEvents() {
   document.querySelector<HTMLFormElement>('[data-form="join-room"]')?.addEventListener('submit', (event) => { event.preventDefault(); const data = new FormData(event.currentTarget as HTMLFormElement); ensureRoomClient().join(String(data.get('code') || ''), String(data.get('name') || '')); });
   document.querySelector<HTMLButtonElement>('[data-room-action="start"]')?.addEventListener('click', () => ensureRoomClient().start());
   document.querySelector<HTMLButtonElement>('[data-room-action="restart"]')?.addEventListener('click', () => ensureRoomClient().restart());
+  document.querySelector<HTMLButtonElement>('[data-room-action="leave"]')?.addEventListener('click', () => {
+    roomClient?.leave();
+    roomClient = null;
+    roomState = null;
+    roomStatus = 'You left this room. Enter a code to join again.';
+    renderRoute();
+  });
   document.querySelectorAll<HTMLButtonElement>('[data-room-choice]').forEach((button) => button.addEventListener('click', () => ensureRoomClient().choose(button.dataset.roomChoice || '')));
   document.querySelectorAll<HTMLButtonElement>('[data-premium]').forEach((button) => button.addEventListener('click', () => {
     if (licenseState.status !== 'valid') return;
@@ -211,5 +227,6 @@ if (licenseState.status === 'checking' && licenseState.token && !isDemoRoute()) 
   void verifyLicense(licenseState.token).then((next) => { licenseState = next; renderRoute(); });
 }
 renderRoute();
+if (!isDemoRoute()) ensureRoomClient().resumeSaved();
 frameId = requestAnimationFrame(loop);
 window.addEventListener('beforeunload', () => cancelAnimationFrame(frameId));

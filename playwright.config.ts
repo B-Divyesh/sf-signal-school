@@ -14,10 +14,18 @@ export default defineConfig({
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
     { name: 'phone', use: { browserName: 'chromium', viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true } }
   ],
-  webServer: {
-    command: 'npm run dev -- --host 127.0.0.1',
-    url: 'http://127.0.0.1:4173',
-    reuseExistingServer: true,
-    timeout: 30_000
-  }
+  webServer: [
+    {
+      command: 'DATA_DIR=/tmp/signal-school-playwright npm run realtime:dev',
+      url: 'http://127.0.0.1:8080/health',
+      reuseExistingServer: true,
+      timeout: 30_000
+    },
+    {
+      command: 'VITE_REALTIME_URL=ws://127.0.0.1:8080/ws npm run dev -- --host 127.0.0.1',
+      url: 'http://127.0.0.1:4173',
+      reuseExistingServer: true,
+      timeout: 30_000
+    }
+  ]
 });

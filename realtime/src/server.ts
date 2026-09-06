@@ -72,6 +72,9 @@ export function createRealtimeServer(options: RealtimeOptions = {}): RealtimeIns
     );
     CREATE INDEX IF NOT EXISTS players_by_room ON players(room_code);
   `);
+  // A process restart closes every WebSocket. Do not carry stale connections
+  // into the next room host; returning clients explicitly resume their slot.
+  db.prepare('UPDATE players SET connected = 0 WHERE connected != 0').run();
   const persist = () => {
     if (!durablePath) return;
     const stagingPath = `${durablePath}.next`;
@@ -172,7 +175,8 @@ export function createRealtimeServer(options: RealtimeOptions = {}): RealtimeIns
     const existing = roomFor(code);
     if (!existing) return error(connection.socket, 'That room code does not exist. Ask the host to check the code.');
     const known = players.get.get(code, message.clientId) as PlayerRow | undefined;
-    if (!known && !allowExisting && Number((players.count.get(code) as { count: number }).count) >= 4) return error(connection.socket, 'This room already has four players.');
+    if (!known && allowExisting) return error(connection.socket, 'This saved room session is no longer available. Join with the current room code.');
+    if (!known && Number((players.count.get(code) as { count: number }).count) >= 4) return error(connection.socket, 'This room already has four players.');
     db.transaction(() => {
       if (known) players.connect.run(String(message.name).trim(), code, message.clientId);
       else {

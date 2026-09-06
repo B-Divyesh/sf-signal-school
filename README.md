@@ -17,11 +17,11 @@ It is for curious adults, teams, and older children who prefer discussing a shar
 - Pause stops the storm clock. The local motion setting persists.
 - Use **Run this topology again** to reset a finished run, or **Try another topology** for one of the other free maps.
 
-The practice game includes Tide Lines, Fog Junction, and Headland Loop. The built-in Scenario Set holds twelve additional topology cards and rotating role views. The one-time offer is not registered yet: checkout and activation are unavailable, and no price is published. The product still contains the cards and future Sociobot license verification path; see [Terms](https://signal-school.sociobot.in/terms).
+The free practice game includes eight finished topologies, starting with Tide Lines, Fog Junction, and Headland Loop. The built-in Scenario Set holds twelve additional topology cards and rotating role views. Together, the game includes twenty finished three-round cards. The one-time offer is not registered yet: checkout and activation are unavailable, and no price is published. The product still contains the cards and future Sociobot license verification path; see [Terms](https://signal-school.sociobot.in/terms).
 
 ## Online rooms
 
-The product-owned `sf-signal-school-realtime` Node/WebSocket service gives rooms short codes and stores room state in SQLite under `/data` in production. It supports two to four independent clients, distinct role views, reconnect, shared consensus choices, win/loss, and host restart. It is not a demo transport.
+The product-owned `sf-signal-school-realtime` Node/WebSocket service gives rooms short codes and stores room state in SQLite under `/data` in production. It supports two to four independent clients, distinct role views, a browser-refresh reconnect, shared consensus choices, win/loss, and host restart. It is not a demo transport.
 
 The static frontend connects only after someone creates or joins a room. The service exposes `GET /health`; regular HTTP and WebSocket actions are rate limited and send `429` with `Retry-After` when the allowance is exceeded.
 
@@ -34,7 +34,7 @@ There are no learner profiles, default analytics, advertising trackers, third-pa
 Prerequisite: Node 22+. Playwright Chromium 1.58.2 is used for browser checks.
 
 ```bash
-npm install
+npm ci
 npm test
 npm run test:browser
 npm run realtime:build
@@ -43,7 +43,7 @@ npm run build
 
 `npm run test:all` runs every command above. `npm run dev` serves the static game at `http://127.0.0.1:4173`. `npm run realtime:dev` starts the room service at `http://127.0.0.1:8080`; set `PORT` or `DATA_DIR` to change those local defaults. For local browser testing against that service, build with `VITE_REALTIME_URL=ws://127.0.0.1:8080/ws`.
 
-The claim inventory is in [.factory/claims.json](.factory/claims.json). Each listed command is runnable from a clean checkout after `npm install`.
+The claim inventory is in [.factory/claims.json](.factory/claims.json). Each listed command is runnable from a clean checkout after `npm ci`. The 390px Chromium phone check measures 60 fps with a five-fps margin while CPU throttling is set to four times.
 
 ## Deploy
 

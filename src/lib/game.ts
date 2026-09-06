@@ -41,7 +41,7 @@ export type RunState = {
 
 const choice = (id: string, label: string, short: string, outcome: string, delivered: number, correct = false): Choice => ({ id, label, short, outcome, delivered, correct });
 
-export const scenarios: Scenario[] = [
+const coreScenarios: Scenario[] = [
   {
     id: 'tide-lines',
     name: 'Tide Lines',
@@ -174,6 +174,26 @@ export const scenarios: Scenario[] = [
       }
     ]
   }
+];
+
+const additionalPracticeCards: Array<Pick<Scenario, 'id' | 'name' | 'focus' | 'role' | 'roleView' | 'topology' | 'debrief'>> = [
+  { id: 'beacon-steps', name: 'Beacon Steps', focus: 'Queues', role: 'Signal keeper', roleView: 'You can see return flags, but not the relay queue.', topology: 'Stepped beacon relays meet at a narrow harbor cable.', debrief: 'Queues build at the narrowest relay, so share work before the last cable fills.' },
+  { id: 'channel-fork', name: 'Channel Fork', focus: 'Redundancy', role: 'Harbor clerk', roleView: 'You can see message priority, but not the fog line.', topology: 'A channel forks around two weather-marked buoys.', debrief: 'A second route protects delivery when a weather mark closes the first.' },
+  { id: 'rain-shelf', name: 'Rain Shelf', focus: 'Feedback', role: 'Weather reader', roleView: 'You can see moving rain marks, but not dispatch order.', topology: 'A shelf relay returns an updated status along the shore.', debrief: 'Feedback helps the team change route when the newest status arrives.' },
+  { id: 'foghorn-bend', name: 'Foghorn Bend', focus: 'Queues', role: 'Relay runner', roleView: 'You can see cable capacity, but not message priority.', topology: 'A bent cable joins a ferry relay before the harbor.', debrief: 'Compare capacity before sending work into the route that is already waiting.' },
+  { id: 'harbor-spur', name: 'Harbor Spur', focus: 'Redundancy', role: 'Signal keeper', roleView: 'You can see flag changes, but not which cable is damaged.', topology: 'A harbor spur keeps an alternate relay open behind the coast.', debrief: 'Keep an alternate path ready before one route becomes unavailable.' }
+];
+
+export const scenarios: Scenario[] = [
+  ...coreScenarios,
+  ...additionalPracticeCards.map((card, index) => {
+    const template = coreScenarios[index % coreScenarios.length];
+    return {
+      ...template,
+      ...card,
+      rounds: template.rounds.map((round, roundIndex) => ({ ...round, title: `Round ${roundIndex + 1}: ${card.name.toLowerCase()}` }))
+    };
+  })
 ];
 
 export const freeScenarioCount = scenarios.length;
