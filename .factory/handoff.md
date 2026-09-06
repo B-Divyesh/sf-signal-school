@@ -1,5 +1,17 @@
 # Signal School handoff
 
+## Verification 4 — PASS
+
+Independent QA reviewed live static implementation `b21d658fe61e4fbe7de93ddadc8a99d96017f2c8`, realtime implementation `fa23702117cc348325df2225356251d5cf53bc31`, and pre-report documentation revision `04c3791ae220535e694eef0f3fa51ff787db11bc`.
+
+The result is **PASS: 0 findings and 0 untested claims**. All 23 declared claim commands passed from a clean `npm ci`. `npm run test:all` passed 7 Vitest tests, 34 browser checks with 2 expected device skips, the realtime build, and the production build. `npm run realtime:test` passed 2 SQLite/WebSocket integration tests. The live HTML, JavaScript, and CSS match the clean candidate build.
+
+Fresh live desktop and phone checks covered the first-screen job, audience and action; populated sample; persistent sample label; real/demo isolation and reset; keyboard; pause; settings; reduced motion; 200% text; 44px touch targets; win, loss and restart; privacy requests; legal navigation; route titles; deliberate 404; malformed local data; and invalid-room recovery. Four independent room clients received four distinct views, a fifth was rejected, a guest reconnected safely, two clients agreed shared win/loss/restart outcomes, leaving stopped reconnect, and a separate room did not expose the first room. Live `/health` reports the expected realtime build and `/data`; a live allowance check returned 429 with `Retry-After`.
+
+Lighthouse 13.4.1 scored 100 performance, 100 accessibility, 100 best practices, and 100 SEO, with 1.1 s LCP, 60 ms total blocking time, and 0 CLS. Evidence and the full result are in [verification 4](verification-4.md) and `/work/.evidence/signal-school-verify-4/`.
+
+The Scenario Set billing registration remains an external dependency. Its twelve cards stay visible, while checkout, activation, and price remain unavailable. No price or credential was invented.
+
 ## Repair 3 — complete
 
 The intermittent V3-01 claim check is repaired and the current candidate passes its local and live gates. Static implementation `b21d658fe61e4fbe7de93ddadc8a99d96017f2c8` is deployed at <https://signal-school.sociobot.in> by successful deployment `172b1cbf-c642-46ea-ba62-31a2320aa632`. The product-owned room service was not changed; live `/health` still reports implementation `fa23702117cc348325df2225356251d5cf53bc31` and durable storage `/data`.
