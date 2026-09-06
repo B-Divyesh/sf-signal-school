@@ -15,7 +15,7 @@ Audit date: 2026-09-06. Counts use whitespace-separated words. Labels, proper na
 | Each role sees one part of the network. | 9 | Pass |
 | Choose a route before the storm advances. | 8 | Pass |
 | Three rounds end with one short debrief. | 8 | Pass |
-| It does not grade people, create learner profiles, connect to an LMS, or claim to certify skills. | 17 | Pass |
+| It does not grade people or issue certificates. | 8 | Pass |
 | Practice runs are stored in this browser. | 8 | Pass |
 | The sample run uses a separate storage area. | 9 | Pass |
 | The built-in Scenario Set adds twelve topology cards and rotating role views. | 12 | Pass |

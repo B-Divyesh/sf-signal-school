@@ -44,7 +44,7 @@ async function client(url: string): Promise<Client> {
   return { socket, states, errors, wait, send: (message) => socket.send(JSON.stringify(message)), close: () => new Promise((resolve) => { socket.once('close', () => resolve()); socket.close(); }) };
 }
 
-test('independent clients receive partial views, agree outcomes, reconnect, persist, and restart', async () => {
+test('@claim:two-to-four-players @claim:room-persistence supports two through four room members, rejects a fifth, and retains a room after restart', async () => {
   const { instance, directory, url } = await setup();
   const firstId = '11111111-1111-4111-8111-111111111111';
   const secondId = '22222222-2222-4222-8222-222222222222';

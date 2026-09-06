@@ -1,6 +1,6 @@
 # Signal School
 
-Signal School is a cooperative signal-routing browser game for two to four players. A run takes three finite rounds: each player sees one part of the network, talks through a route, and tries to deliver all six signals before the storm. Use a keyboard, pointer, or phone controls.
+Signal School is a cooperative signal-routing browser game for two to four players. A run takes three finite rounds: each player sees one part of the network, talks through a route, and tries to deliver all six signals before the storm. Use the on-screen route buttons or keys `1`, `2`, and `3`.
 
 Live product: https://signal-school.sociobot.in
 
@@ -8,7 +8,7 @@ Start with the immediate sample at https://signal-school.sociobot.in/demo. It is
 
 ## Who it is for
 
-It is for curious adults, teams, and older children who prefer discussing a shared systems problem to reading a lesson. It frames queues, bottlenecks, redundancy, and feedback as game goals. It does not grade, certify, profile, or claim validated learning.
+It is for curious adults, teams, and older children who prefer discussing a shared systems problem to reading a lesson. It frames queues, bottlenecks, redundancy, and feedback as game goals. It does not grade people, issue certificates, or claim validated learning.
 
 ## Play
 
@@ -17,7 +17,7 @@ It is for curious adults, teams, and older children who prefer discussing a shar
 - Pause stops the storm clock. The local motion setting persists.
 - Use **Run this topology again** to reset a finished run, or **Try another topology** for one of the other free maps.
 
-The free practice game includes eight finished topologies, starting with Tide Lines, Fog Junction, and Headland Loop. The built-in Scenario Set holds twelve additional topology cards and rotating role views. Together, the game includes twenty finished three-round cards. The one-time offer is not registered yet: checkout and activation are unavailable, and no price is published. The product still contains the cards and future Sociobot license verification path; see [Terms](https://signal-school.sociobot.in/terms).
+The free practice game includes eight finished topologies, starting with Tide Lines, Fog Junction, and Headland Loop. The built-in Scenario Set holds twelve additional topology cards and rotating role views. Together, the game includes twenty finished three-round cards. The one-time offer is not registered yet, so checkout and activation are unavailable. The product still contains the cards and future Sociobot license verification path; see [Terms](https://signal-school.sociobot.in/terms).
 
 ## Online rooms
 

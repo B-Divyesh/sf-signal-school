@@ -2,7 +2,7 @@
   {
     "id": "three-round-ending",
     "claim": "A practice run ends after three rounds.",
-    "where": "game board, README",
+    "where": "first screen, game board, README",
     "test": "npm test -- -t @claim:three-round-ending",
     "sandbox": "start a fresh deterministic practice run and submit the successful route three times"
   },
@@ -29,10 +29,10 @@
   },
   {
     "id": "keyboard-routes",
-    "claim": "Keys 1, 2, and 3 choose routes during a practice run.",
+    "claim": "On-screen route buttons and keys 1, 2, and 3 choose routes during a practice run.",
     "where": "game controls, README",
     "test": "npm run test:browser -- --grep @claim:keyboard-routes",
-    "sandbox": "open the demo and send the 1 key to advance to the next round"
+    "sandbox": "open the demo, choose one route with its on-screen button, then use key 1 for the next round"
   },
   {
     "id": "settings-persist",
@@ -49,11 +49,39 @@
     "sandbox": "record all requests during a complete demo run and allow only the local product origin"
   },
   {
+    "id": "privacy-by-default",
+    "claim": "A sample run starts without a profile and makes no cross-origin analytics, tracker, font, or script request.",
+    "where": "first screen, privacy page, README",
+    "test": "npm run test:browser -- --grep @claim:privacy-by-default",
+    "sandbox": "open a fresh sample, finish the run, verify no profile form appears, and record every browser request origin"
+  },
+  {
+    "id": "local-practice",
+    "claim": "Practice progress stays in this browser across reload.",
+    "where": "privacy page, README",
+    "test": "npm run test:browser -- --grep @claim:local-practice",
+    "sandbox": "play one local round, reload the same browser, and confirm the saved round remains"
+  },
+  {
+    "id": "sample-ready",
+    "claim": "The sample opens a populated three-round board with labelled practice teammates.",
+    "where": "first screen, demo banner, README",
+    "test": "npm run test:browser -- --grep @claim:sample-ready",
+    "sandbox": "open the shipped demo URL and inspect its banner, relay board, first round, teammates, and route controls"
+  },
+  {
     "id": "browser-end-screen",
     "claim": "A complete practice run shows a result and can restart.",
     "where": "game end screen",
     "test": "npm run test:browser -- --grep @claim:browser-end-screen",
     "sandbox": "play the successful demo path through its debrief and restart it"
+  },
+  {
+    "id": "game-not-course",
+    "claim": "A completed practice run ends with a game result and debrief, not a grading or credential step.",
+    "where": "What Signal School does not do, terms page, README",
+    "test": "npm run test:browser -- --grep @claim:game-not-course",
+    "sandbox": "finish the sample run and inspect the available end-screen actions and fields"
   },
   {
     "id": "accessibility-basics",
@@ -71,10 +99,17 @@
   },
   {
     "id": "game-content",
-    "claim": "Signal School includes twenty finished topology cards.",
+    "claim": "Signal School includes eight free and twelve Scenario Set finished topology cards, for twenty total.",
     "where": "README, quality documentation",
     "test": "npm test -- -t @claim:game-content",
     "sandbox": "load the shipped scenario inventory and verify twenty distinct three-round topology cards"
+  },
+  {
+    "id": "pause-stops-storm-clock",
+    "claim": "Pause stops the storm clock until the run resumes.",
+    "where": "game controls, README",
+    "test": "npm test -- -t @claim:pause-stops-storm-clock",
+    "sandbox": "advance an active deterministic run, pause it, advance simulated time, then resume it"
   },
   {
     "id": "phone-frame-rate",
@@ -85,10 +120,38 @@
   },
   {
     "id": "online-rooms",
-    "claim": "Online rooms give real clients different role views, recover a reconnect, and resolve shared runs.",
+    "claim": "Online rooms give real clients different role views, recover a reconnect, and reach shared win, loss, and restart results.",
     "where": "online room panel, README",
     "test": "npm run test:browser -- --grep @claim:online-rooms",
     "sandbox": "start the product-owned local WebSocket service, use two independent browser clients, reload one client, agree three routes, and restart the shared room"
+  },
+  {
+    "id": "two-to-four-players",
+    "claim": "Online rooms support two to four players and reject a fifth player.",
+    "where": "first screen, online rooms, README",
+    "test": "npm run realtime:test -- -t @claim:two-to-four-players",
+    "sandbox": "use independent WebSocket clients to create a room, join through player four, then attempt a fifth join"
+  },
+  {
+    "id": "room-persistence",
+    "claim": "A room stored on durable SQLite remains available after the room service restarts.",
+    "where": "README, service quality documentation",
+    "test": "npm run realtime:test -- -t @claim:room-persistence",
+    "sandbox": "create a room against a temporary SQLite database, restart the service, and query the same room code"
+  },
+  {
+    "id": "scenario-set-unavailable",
+    "claim": "The twelve built-in Scenario Set cards stay visible, with no checkout path, until the one-time offer is registered.",
+    "where": "Scenario Set section, terms page, README",
+    "test": "npm run test:browser -- --grep @claim:scenario-set-unavailable",
+    "sandbox": "open the Scenario Set and its terms from a fresh landing page, then inspect the available purchase actions"
+  },
+  {
+    "id": "leave-room",
+    "claim": "Leaving an online room stops automatic reconnection after reload.",
+    "where": "privacy page",
+    "test": "npm run test:browser -- --grep @claim:leave-room",
+    "sandbox": "create a local room, leave it, reload the same browser, and confirm the create-or-join room view remains"
   },
   {
     "id": "room-rate-limit",

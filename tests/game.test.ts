@@ -1,4 +1,4 @@
-import { allScenarios, chooseRoute, freshRun, freeScenarioCount, premiumScenarioSet, restartRun, startRun } from '../src/lib/game';
+import { allScenarios, chooseRoute, freshRun, freeScenarioCount, premiumScenarioSet, restartRun, startRun, tickRun, togglePause } from '../src/lib/game';
 import { describe, expect, it } from 'vitest';
 
 describe('practice run rules', () => {
@@ -23,7 +23,7 @@ describe('practice run rules', () => {
     expect(restarted.choices).toEqual([]);
   });
 
-  it('@claim:game-content provides twenty finished topology cards across practice and the Scenario Set', () => {
+  it('@claim:game-content provides eight free and twelve Scenario Set topology cards, for twenty finished cards', () => {
     expect(allScenarios).toHaveLength(20);
     expect(freeScenarioCount).toBe(8);
     expect(allScenarios.every((scenario) => scenario.rounds.length === 3)).toBe(true);
@@ -34,5 +34,15 @@ describe('practice run rules', () => {
     expect(premiumScenarioSet).toHaveLength(12);
     expect(new Set(premiumScenarioSet.map((scenario) => scenario.topology)).size).toBe(12);
     expect(new Set(premiumScenarioSet.map((scenario) => scenario.role)).size).toBe(4);
+  });
+
+  it('@claim:pause-stops-storm-clock keeps the storm clock still until a paused run resumes', () => {
+    const running = tickRun(startRun(freshRun()), 12);
+    const paused = togglePause(running);
+    const stillPaused = tickRun(paused, 30);
+    const resumed = tickRun(togglePause(stillPaused), 5);
+
+    expect(stillPaused.secondsLeft).toBe(running.secondsLeft);
+    expect(resumed.secondsLeft).toBe(running.secondsLeft - 5);
   });
 });

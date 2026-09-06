@@ -28,8 +28,42 @@ test('@claim:demo-isolation keeps sample progress separate from a real practice 
 
 test('@claim:keyboard-routes chooses a route with number keys', async ({ page }) => {
   await page.goto('/demo');
-  await page.keyboard.press('1');
+  await page.getByRole('button', { name: /split/i }).click();
   await expect(page.getByText('Round 2 of 3')).toBeVisible();
+  await page.keyboard.press('1');
+  await expect(page.getByText('Round 3 of 3')).toBeVisible();
+});
+
+test('@claim:privacy-by-default starts a sample without a profile or cross-origin tracking assets', async ({ page }) => {
+  const origins = new Set<string>();
+  page.on('request', (request) => origins.add(new URL(request.url()).origin));
+
+  await page.goto('/demo');
+  await expect(page.getByLabel('Demo status')).toContainText('sample data, nothing is saved');
+  await expect(page.locator('input, select, textarea')).toHaveCount(0);
+  await winDemo(page);
+
+  expect([...origins]).toEqual([new URL(page.url()).origin]);
+});
+
+test('@claim:sample-ready opens a populated three-round board with labelled practice teammates', async ({ page }) => {
+  await page.goto('/demo');
+  await expect(page.getByLabel('Demo status')).toBeVisible();
+  await expect(page.locator('.storm-board')).toBeVisible();
+  await expect(page.getByText('Round 1 of 3')).toBeVisible();
+  await expect(page.locator('.intel').getByText('Practice teammates', { exact: true })).toBeVisible();
+  await expect(page.locator('.route-choices .route-choice')).toHaveCount(3);
+});
+
+test('@claim:local-practice keeps a real practice run in this browser across reload', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /start three rounds/i }).click();
+  await page.getByRole('button', { name: /split/i }).click();
+  await page.reload();
+
+  await expect(page.getByText('Round 2 of 3')).toBeVisible();
+  const savedRun = await page.evaluate(() => JSON.parse(localStorage.getItem('signal-school:run') || 'null'));
+  expect(savedRun).toMatchObject({ phase: 'active', roundIndex: 1, delivered: 2 });
 });
 
 test('@claim:settings-persist keeps the motion setting after reload', async ({ page }) => {
@@ -57,6 +91,15 @@ test('@claim:browser-end-screen shows a completed run and restarts it', async ({
   await expect(page.getByText('0 of 6 signals delivered.')).not.toBeVisible();
 });
 
+test('@claim:game-not-course ends with a game result and debrief instead of a grading or credential step', async ({ page }) => {
+  await winDemo(page);
+
+  await expect(page.getByRole('heading', { name: 'Six signals delivered' })).toBeVisible();
+  await expect(page.locator('.debrief')).toBeVisible();
+  await expect(page.locator('input, select, textarea')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /grade|certificate|submit work/i })).toHaveCount(0);
+});
+
 test('@claim:accessibility-basics has no serious or critical axe violations', async ({ page }) => {
   await page.goto('/demo');
   const results = await new AxeBuilder({ page }).analyze();
@@ -81,6 +124,42 @@ test('@claim:scenario-set-content shows twelve additional topology cards with ro
   await expect(cards).toHaveCount(12);
   expect(await page.locator('.scenario-cards li > b').allTextContents()).toEqual(expect.arrayContaining(['Glass Causeway', 'Echo Station']));
   expect(new Set(await cards.evaluateAll((items) => items.map((item) => item.getAttribute('data-role-view'))))).toEqual(new Set(['Signal keeper', 'Harbor clerk', 'Weather reader', 'Relay runner']));
+});
+
+test('@claim:scenario-set-unavailable keeps the twelve built-in cards visible without a checkout path before registration', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.scenario-cards li')).toHaveCount(12);
+  await page.getByRole('link', { name: /read the offer terms/i }).click();
+  await expect(page.getByRole('heading', { name: 'Terms' })).toBeVisible();
+  await expect(page.locator('a, button').filter({ hasText: /buy|checkout|activate/i })).toHaveCount(0);
+});
+
+test('@claim:leave-room clears the saved room session so reload does not reconnect', async ({ page }) => {
+  await page.goto('/');
+  const createForm = page.locator('[data-form="create-room"]');
+  await createForm.getByLabel('Your name').fill('Ari');
+  await createForm.getByRole('button', { name: 'Create room' }).click();
+  await expect(page.getByRole('heading', { name: /Room [A-Z0-9]{6}/ })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Leave room' }).click();
+  await expect(page.locator('[data-form="create-room"]')).toBeVisible();
+  await page.reload();
+  await expect(page.locator('[data-form="create-room"]')).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem('signal-school:room-session'))).toBeNull();
+});
+
+test('header section links reach their named landing sections from each legal page', async ({ page }) => {
+  for (const route of ['/privacy', '/terms']) {
+    await page.goto(route);
+    await page.getByRole('link', { name: 'How to play' }).click();
+    await expect(page).toHaveURL(/\/#how-to-play$/);
+    await expect(page.getByRole('heading', { name: 'How a run works' })).toBeInViewport();
+
+    await page.goto(route);
+    await page.getByRole('link', { name: 'Scenario set' }).click();
+    await expect(page).toHaveURL(/\/#scenario-set$/);
+    await expect(page.getByRole('heading', { name: 'Twelve more topologies' })).toBeInViewport();
+  }
 });
 
 test('the phone demo shows a usable relay board in its first viewport', async ({ page }, testInfo) => {
@@ -151,6 +230,16 @@ test('@claim:online-rooms restores a shared room after a real browser refresh an
       if (round < 2) await expect(host.getByText(`Round ${round + 2} is open.`)).toBeVisible();
     }
     await expect(guest.getByRole('heading', { name: 'Six signals delivered' })).toBeVisible();
+    await host.getByRole('button', { name: 'Restart shared run' }).click();
+    await expect(guest.getByText('Waiting for the room host to start.')).toBeVisible();
+
+    await host.getByRole('button', { name: 'Start shared run' }).click();
+    for (let round = 0; round < 3; round += 1) {
+      await host.locator('.online-choices').getByRole('button', { name: /direct/i }).click();
+      await guest.locator('.online-choices').getByRole('button', { name: /direct/i }).click();
+      if (round < 2) await expect(host.getByText(`Round ${round + 2} is open.`)).toBeVisible();
+    }
+    await expect(guest.getByRole('heading', { name: 'Shared run ended' })).toBeVisible();
     await host.getByRole('button', { name: 'Restart shared run' }).click();
     await expect(guest.getByText('Waiting for the room host to start.')).toBeVisible();
   } finally {
