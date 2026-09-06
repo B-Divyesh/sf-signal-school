@@ -17,8 +17,8 @@
     "id": "scenario-set-content",
     "claim": "The Scenario Set contains twelve more topology cards with rotating role views.",
     "where": "Scenario Set section, README",
-    "test": "npm test -- --grep @claim:scenario-set-content",
-    "sandbox": "inspect the content model for twelve distinct topology descriptions and four roles"
+    "test": "npm run test:browser -- --grep @claim:scenario-set-content",
+    "sandbox": "open the landing page and count the visible Scenario Set topology cards"
   },
   {
     "id": "demo-isolation",

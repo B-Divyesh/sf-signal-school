@@ -68,3 +68,10 @@ test('@claim:route-titles sets titles for demo, legal pages, and the designed 40
   await page.goto('/not-a-route');
   await expect(page.getByRole('heading', { name: 'Page not found' })).toBeVisible();
 });
+
+test('@claim:scenario-set-content shows twelve additional topology cards', async ({ page }) => {
+  await page.goto('/');
+  const cards = page.locator('.scenario-cards li');
+  await expect(cards).toHaveCount(12);
+  expect(await cards.allTextContents()).toEqual(expect.arrayContaining(['Glass Causeway', 'Echo Station']));
+});

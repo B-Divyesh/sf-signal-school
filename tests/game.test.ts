@@ -23,7 +23,7 @@ describe('practice run rules', () => {
     expect(restarted.choices).toEqual([]);
   });
 
-  it('@claim:scenario-set-content provides twelve different paid topology cards', () => {
+  it('provides twelve different paid topology cards', () => {
     expect(premiumScenarioSet).toHaveLength(12);
     expect(new Set(premiumScenarioSet.map((scenario) => scenario.topology)).size).toBe(12);
     expect(new Set(premiumScenarioSet.map((scenario) => scenario.role)).size).toBe(4);
