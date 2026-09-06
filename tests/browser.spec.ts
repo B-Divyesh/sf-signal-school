@@ -188,6 +188,17 @@ test('the phone demo shows a usable relay board in its first viewport', async ({
   });
   expect(board.top).toBeLessThan(board.viewport);
   expect(Math.min(board.bottom, board.viewport) - board.top).toBeGreaterThan(140);
+
+  const touchTargets = await page.locator('.site-header nav a, .demo-banner a, button').evaluateAll((elements) => elements
+    .filter((element) => {
+      const style = getComputedStyle(element);
+      return style.display !== 'none' && style.visibility !== 'hidden';
+    })
+    .map((element) => {
+      const bounds = element.getBoundingClientRect();
+      return { label: element.textContent?.trim(), width: bounds.width, height: bounds.height };
+    }));
+  expect(touchTargets.filter(({ width, height }) => width < 44 || height < 44)).toEqual([]);
 });
 
 test('@claim:phone-frame-rate keeps the active phone demo within the 60 fps measurement margin', async ({ page }, testInfo) => {
