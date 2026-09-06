@@ -1,5 +1,13 @@
 # Signal School handoff
 
+## Verification 2
+
+Independent QA on 2026-09-06 is a **PASS**: 0 findings and 0 untested claims. The reviewed live static implementation is `67d76b89bee43ee04c366518a15a2f67f8879baa`; the reviewed realtime implementation is `fa23702117cc348325df2225356251d5cf53bc31`; documentation and tests are `01c918e27f979af502ab6926961903f979958885`.
+
+From a clean checkout, `npm ci`, every command in `.factory/claims.json`, `npm run test:all`, and `npm run realtime:test` passed. Live QA covered fresh desktop and 390px phone demo runs, actual win/loss/restart states, reset isolation, keyboard and reduced motion, axe, route titles and HTTP 404, invalid room recovery, independent two-client partial views, refresh recovery, room win/restart, service health/storage, and HTTP 429 with Retry-After. The 390px four-times-throttled frame-rate claim test passed. Production build output is 11,162 B gzip JavaScript and 4,128 B gzip CSS.
+
+Evidence and the full report are in [verification 2](verification-2.md) and `/work/.evidence/signal-school-verify-2/`. The Scenario Set remains honestly unavailable until external billing registration; the free game and rooms work without it.
+
 ## Repair status
 
 All eight findings in [verification 1](verification-1.md) are repaired in the deployed candidate. Signal School remains a two-to-four-player cooperative signal-routing game for curious adults, teams, and older children. On first view it states the job, who it is for, and the first action: **Try it with sample data** opens the populated three-round practice board.
