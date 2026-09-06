@@ -1,0 +1,36 @@
+{
+  "slug": "signal-school",
+  "title": "Signal School",
+  "territory": "games-creative",
+  "user": "Curious adults, teams, and older children who learn abstract systems better by negotiating a playful shared problem than by reading a lesson or watching a tutorial.",
+  "evidence": [
+    {
+      "url": "https://hn.algolia.com/api/v1/items/48250814",
+      "date": "2026-05-23",
+      "quote_or_summary": "A programmer/climber describes people understanding avalanche-risk and Unix-pipeline concepts while playing cards in a bar, then asks what makes games effective for abstract technical learning."
+    },
+    {
+      "url": "https://hn.algolia.com/api/v1/items/49485147",
+      "date": "2026-08-28",
+      "quote_or_summary": "A parent working on at-home learning ideas asks the HN community about single-page learning games built for children."
+    },
+    {
+      "url": "https://discuss.tchncs.de/post/40095654",
+      "date": "2025-07-06",
+      "quote_or_summary": "A maintained community recommendation list explicitly filters for games without ads, battle passes, daily-logins, or infinite microtransactions\u2014constraints relevant to a small learning-through-play game."
+    }
+  ],
+  "recurrence": "Two 2026 requests independently seek learning through playable, compact formats; one includes a direct observed group-learning outcome. A separate community thread also shows active demand for games that avoid retention-driven monetization.",
+  "current_workaround": "Use flashcards, worksheets, long tutorial videos, workplace icebreakers, or physical card games that are hard to share remotely.",
+  "incumbents_and_gap": "Kahoot and quiz platforms center recall; coding tutorials center instruction. Physical teaching card games can create conversation but are not instantly shareable. The gap is a small finished cooperative systems game, not a classroom tool.",
+  "smallest_useful_product": "A 2\u20134 player browser signal-routing game: each player sees only one part of a small network and must coordinate three rounds to deliver messages before a storm. Every 12-minute run teaches one transferable systems idea\u2014queues, bottlenecks, redundancy, or feedback\u2014through play, then ends with a one-sentence debrief card. Runs vary in network topology and role assignment. Non-goals: LMS integration, grading, surveillance, content generation, or pretending to certify skills.",
+  "success_measure": "In moderated playtests, 70% of groups can correctly predict the final bottleneck after a second run, and at least half voluntarily start another topology.",
+  "artifact_class": "browser-game",
+  "monetization": "one-time \u2014 a small scenario set can be paid for without selling student data or imposing classroom subscriptions.",
+  "constraints": "No learner profiles or analytics by default; claims must be framed as game goals, not validated pedagogy; use original examples and permit keyboard-only play.",
+  "est_build_effort": "M",
+  "scale": "small",
+  "why_distinct": "The learning emerges from asymmetric cooperative play and a real ending, rather than a gamified quiz or a tool marketed to gamers.",
+  "confidence": 3,
+  "state": "ADMITTED"
+}
