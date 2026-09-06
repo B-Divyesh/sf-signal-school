@@ -23,11 +23,24 @@ describe('practice run rules', () => {
     expect(restarted.choices).toEqual([]);
   });
 
-  it('@claim:game-content provides eight free and twelve Scenario Set topology cards, for twenty finished cards', () => {
+  it('@claim:game-content provides twenty distinct, playable three-round topology cards', () => {
     expect(allScenarios).toHaveLength(20);
     expect(freeScenarioCount).toBe(8);
     expect(allScenarios.every((scenario) => scenario.rounds.length === 3)).toBe(true);
     expect(new Set(allScenarios.map((scenario) => scenario.topology)).size).toBe(20);
+    const playableSignatures = allScenarios.map((scenario) => JSON.stringify(scenario.rounds.map((round) => ({
+      goal: round.goal,
+      partialIntel: round.partialIntel,
+      teammate: round.teammate,
+      choices: round.choices.map((choice) => [choice.label, choice.outcome, choice.delivered])
+    }))));
+    expect(new Set(playableSignatures).size).toBe(20);
+
+    allScenarios.forEach((scenario, index) => {
+      let run = startRun(freshRun(index));
+      scenario.rounds.forEach((round) => { run = chooseRoute(run, round.choices.find((choice) => choice.correct)!.id); });
+      expect(run).toMatchObject({ phase: 'ended', end: 'won', delivered: 6, roundIndex: 3 });
+    });
   });
 
   it('provides twelve different paid topology cards with four role views', () => {

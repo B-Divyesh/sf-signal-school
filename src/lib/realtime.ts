@@ -1,6 +1,9 @@
 export type RoomPlayer = { id: string; name: string; role: string; connected: boolean; isHost: boolean };
+export type RoomPlan = { id: 'split' | 'west' | 'hold'; label: string; detail: string };
 export type RoomState = {
   code: string;
+  scenarioName: string;
+  topology: string;
   phase: 'lobby' | 'active' | 'ended';
   round: number;
   delivered: number;
@@ -8,6 +11,8 @@ export type RoomState = {
   players: RoomPlayer[];
   ownRole: string;
   ownIntel: string;
+  roundGoal: string;
+  plans: RoomPlan[];
   choices: Record<string, string>;
   note: string;
 };
@@ -62,6 +67,7 @@ export class RoomClient {
   start() { this.send({ type: 'start', clientId: clientId(), code: this.currentCode }); }
   choose(choice: string) { this.send({ type: 'choose', clientId: clientId(), code: this.currentCode, choice }); }
   restart() { this.send({ type: 'restart', clientId: clientId(), code: this.currentCode }); }
+  deleteRoom() { this.send({ type: 'delete', clientId: clientId(), code: this.currentCode }); }
 
   resumeSaved() {
     const session = loadRoomSession();
@@ -127,6 +133,13 @@ export class RoomClient {
         this.name = '';
       }
       this.onStatus(String(message.message));
+    } else if (message.type === 'deleted') {
+      clearRoomSession();
+      this.currentCode = '';
+      this.name = '';
+      this.shouldReconnect = false;
+      this.socket?.close();
+      this.onStatus(String(message.message || 'The room data was deleted.'));
     }
   }
 }

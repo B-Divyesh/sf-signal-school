@@ -99,10 +99,10 @@
   },
   {
     "id": "game-content",
-    "claim": "Signal School includes eight free and twelve Scenario Set finished topology cards, for twenty total.",
+    "claim": "Signal School includes eight free and twelve Scenario Set distinct playable three-round topology cards, for twenty total.",
     "where": "README, quality documentation",
     "test": "npm test -- -t @claim:game-content",
-    "sandbox": "load the shipped scenario inventory and verify twenty distinct three-round topology cards"
+    "sandbox": "load every shipped card, compare its full playable round content, then play each card's correct three-route path to an ending"
   },
   {
     "id": "pause-stops-storm-clock",
@@ -120,10 +120,10 @@
   },
   {
     "id": "online-rooms",
-    "claim": "Online rooms give real clients different role views, recover a reconnect, and reach shared win, loss, and restart results.",
+    "claim": "Online rooms give real clients partial role views, vary topology and roles after restart, recover a reconnect, and reach shared win and loss results.",
     "where": "online room panel, README",
     "test": "npm run test:browser -- --grep @claim:online-rooms",
-    "sandbox": "start the product-owned local WebSocket service, use two independent browser clients, reload one client, agree three routes, and restart the shared room"
+    "sandbox": "start the product-owned local WebSocket service, use two independent browser clients, reload one client, play changing shared route plans across three topologies, and inspect the changed role views"
   },
   {
     "id": "two-to-four-players",
@@ -155,9 +155,23 @@
   },
   {
     "id": "room-rate-limit",
-    "claim": "The room service returns 429 with Retry-After after its request allowance.",
+    "claim": "Room lookups and new room connections return 429 with Retry-After after their request allowance; an open room receives a wait message.",
     "where": "service quality documentation",
     "test": "npm test -- -t @claim:room-rate-limit",
-    "sandbox": "send requests past the service allowance and inspect the final HTTP status and header"
+    "sandbox": "exceed room lookup and WebSocket-connection allowances, then exceed open-room messages and inspect their distinct observable responses"
+  },
+  {
+    "id": "room-data-deletion",
+    "claim": "A room host can delete the room and its server data for every player.",
+    "where": "Privacy page, online room panel, README",
+    "test": "npm run test:browser -- --grep @claim:room-data-deletion",
+    "sandbox": "create a local room, confirm Delete room data, observe every browser return to the room form, and confirm the product service no longer finds the code"
+  },
+  {
+    "id": "room-retention",
+    "claim": "Rooms with no update for 24 hours are deleted automatically.",
+    "where": "Privacy page, README",
+    "test": "npm run realtime:test -- -t @claim:room-retention",
+    "sandbox": "create a room against a temporary SQLite database, advance the service clock past 24 hours, restart the service, and confirm the room is absent"
   }
 ]

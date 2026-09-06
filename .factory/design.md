@@ -23,7 +23,7 @@ The board, flags, weather marks, favicon, apple icon, and social card are origin
 
 ## Content and difficulty
 
-The free practice has eight finished topologies, starting with Tide Lines (queues), Fog Junction (redundancy), and Headland Loop (feedback). Each uses three finite decisions and requires all six signals for a win. The built-in one-time Scenario Set has twelve more topology cards with four rotating role views, for twenty finished cards in total. The first round establishes a simple two-route choice; later rounds add a weather change or return signal. This keeps the challenge about comparing partial information, not timing accuracy.
+The free practice has eight independently scripted topologies, starting with Tide Lines (queues), Fog Junction (redundancy), and Headland Loop (feedback). Each uses three finite decisions and requires all six signals for a win. The built-in one-time Scenario Set has twelve more independently scripted topology cards with four rotating role views, for twenty finished cards in total. Every card has its own goals, partial information, teammate reports, plan labels, and winning route sequence. Real rooms rotate through three shared topologies after restart; both the winning plans and assigned roles change. This keeps the challenge about comparing partial information, not timing accuracy.
 
 ## Accessibility checks
 

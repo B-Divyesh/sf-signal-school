@@ -3,9 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 
 const winDemo = async (page: import('@playwright/test').Page) => {
   await page.goto('/demo');
-  await page.getByRole('button', { name: /split/i }).click();
-  await page.getByRole('button', { name: /split/i }).click();
-  await page.getByRole('button', { name: /read \+ split/i }).click();
+  for (let round = 0; round < 3; round += 1) await page.locator('.route-choices .route-choice').first().click();
 };
 
 test('@claim:demo-isolation keeps sample progress separate from a real practice run', async ({ page }) => {
@@ -39,7 +37,7 @@ test('@claim:demo-isolation keeps sample progress separate from a real practice 
 
   await page.getByRole('link', { name: 'Start for real' }).click();
   await expect(page.getByText('Round 2 of 3')).toBeVisible();
-  await expect(page.getByText(/one note waits in the west queue/i)).toBeVisible();
+  await expect(page.getByText(/one signal waiting/i)).toBeVisible();
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('signal-school:run') || 'null'))).toEqual(realAfterFirstRound);
 });
 
@@ -165,6 +163,25 @@ test('@claim:leave-room clears the saved room session so reload does not reconne
   expect(await page.evaluate(() => localStorage.getItem('signal-school:room-session'))).toBeNull();
 });
 
+test('@claim:room-data-deletion lets the host remove a room from the product service', async ({ page }) => {
+  await page.goto('/');
+  const createForm = page.locator('[data-form="create-room"]');
+  await createForm.getByLabel('Your name').fill('Ari');
+  await createForm.getByRole('button', { name: 'Create room' }).click();
+  const heading = page.getByRole('heading', { name: /Room [A-Z0-9]{6}/ });
+  await expect(heading).toBeVisible();
+  const code = (await heading.textContent())!.replace('Room ', '');
+  page.once('dialog', (dialog) => dialog.accept());
+  await page.getByRole('button', { name: 'Delete room data' }).click();
+  await expect(page.locator('[data-form="create-room"]')).toBeVisible();
+  await expect(page.getByText('The host deleted this room and its server data.')).toBeVisible();
+  const exists = await page.evaluate(async (roomCode) => {
+    const response = await fetch(`http://127.0.0.1:8080/rooms/${roomCode}`);
+    return response.status;
+  }, code);
+  expect(exists).toBe(404);
+});
+
 test('header section links reach their named landing sections from each legal page', async ({ page }) => {
   for (const route of ['/privacy', '/terms']) {
     await page.goto(route);
@@ -223,7 +240,7 @@ test('@claim:phone-frame-rate keeps the active phone demo within the 60 fps meas
   expect(1000 / medianInterval).toBeGreaterThanOrEqual(55);
 });
 
-test('@claim:online-rooms restores a shared room after a real browser refresh and resolves a run', async ({ browser }) => {
+test('@claim:online-rooms gives independent clients changing role views and varied shared win and loss runs', async ({ browser }) => {
   const hostContext = await browser.newContext();
   const guestContext = await browser.newContext();
   const host = await hostContext.newPage();
@@ -244,32 +261,45 @@ test('@claim:online-rooms restores a shared room after a real browser refresh an
     await joinForm.getByRole('button', { name: 'Join room' }).click();
     await expect(guest.getByRole('heading', { name: `Room ${code}` })).toBeVisible();
     await expect(host.locator('.room-players').getByText('Weather reader', { exact: true })).toBeVisible();
-    await expect(guest.locator('.room-panel > p').nth(1)).toContainText('Your role: Weather reader');
+    await expect(host.locator('.room-topology')).toContainText('Tide Lines');
+    await expect(guest.getByText(/Your role: Weather reader/)).toContainText('East has no fog mark');
 
     await guest.reload();
     await expect(guest.getByRole('heading', { name: `Room ${code}` })).toBeVisible();
-    await expect(guest.locator('.room-panel > p').nth(1)).toContainText('Your role: Weather reader');
+    await expect(guest.getByText(/Your role: Weather reader/)).toContainText('East has no fog mark');
     await expect(host.locator('.room-players').getByText('Bo', { exact: true })).toBeVisible();
 
     await host.getByRole('button', { name: 'Start shared run' }).click();
-    for (let round = 0; round < 3; round += 1) {
-      await host.locator('.online-choices').getByRole('button', { name: /split/i }).click();
-      await guest.locator('.online-choices').getByRole('button', { name: /split/i }).click();
+    for (const [round, choiceIndex] of [0, 1, 2].entries()) {
+      await host.locator('.online-choices').getByRole('button').nth(choiceIndex).click();
+      await guest.locator('.online-choices').getByRole('button').nth(choiceIndex).click();
       if (round < 2) await expect(host.getByText(`Round ${round + 2} is open.`)).toBeVisible();
     }
     await expect(guest.getByRole('heading', { name: 'Six signals delivered' })).toBeVisible();
     await host.getByRole('button', { name: 'Restart shared run' }).click();
     await expect(guest.getByText('Waiting for the room host to start.')).toBeVisible();
+    await expect(guest.locator('.room-topology')).toContainText('Fog Junction');
+    await expect(guest.getByText(/Your role: Harbor clerk/)).toContainText('Neither notice can wait');
+
+    await host.getByRole('button', { name: 'Start shared run' }).click();
+    for (const [round, choiceIndex] of [1, 2, 0].entries()) {
+      await host.locator('.online-choices').getByRole('button').nth(choiceIndex).click();
+      await guest.locator('.online-choices').getByRole('button').nth(choiceIndex).click();
+      if (round < 2) await expect(host.getByText(`Round ${round + 2} is open.`)).toBeVisible();
+    }
+    await expect(guest.getByRole('heading', { name: 'Six signals delivered' })).toBeVisible();
+    await host.getByRole('button', { name: 'Restart shared run' }).click();
+    await expect(guest.getByText('Waiting for the room host to start.')).toBeVisible();
+    await expect(guest.locator('.room-topology')).toContainText('Headland Loop');
+    await expect(guest.getByText(/Your role: Signal keeper/)).toBeVisible();
 
     await host.getByRole('button', { name: 'Start shared run' }).click();
     for (let round = 0; round < 3; round += 1) {
-      await host.locator('.online-choices').getByRole('button', { name: /direct/i }).click();
-      await guest.locator('.online-choices').getByRole('button', { name: /direct/i }).click();
+      await host.locator('.online-choices').getByRole('button').first().click();
+      await guest.locator('.online-choices').getByRole('button').first().click();
       if (round < 2) await expect(host.getByText(`Round ${round + 2} is open.`)).toBeVisible();
     }
     await expect(guest.getByRole('heading', { name: 'Shared run ended' })).toBeVisible();
-    await host.getByRole('button', { name: 'Restart shared run' }).click();
-    await expect(guest.getByText('Waiting for the room host to start.')).toBeVisible();
   } finally {
     await hostContext.close();
     await guestContext.close();
