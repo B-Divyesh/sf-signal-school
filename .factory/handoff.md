@@ -59,3 +59,15 @@ The realtime deployment remains the product’s one-replica service with the dur
 ## Remaining external dependency
 
 The one-time Scenario Set billing offer is not registered. Its exact offer slug, price, currency, checkout, activation, and license path are therefore unavailable and are not guessed. The built-in twelve paid cards remain visible; the free practice game and real rooms work without billing. Honest operator metadata is at `/work/.evidence/billing-offer.json`.
+
+## Verification 5 — PASS
+
+Independent QA reviewed implementation `cad187f558c5faabb8802824806b7674241925dd` and documentation/test revision `3020b079724836fa9411a108e135e32ccfeedbda`. It found **0 findings** and **0 untested claims**.
+
+From a clean Node 22.23.2 install, `npm ci` completed with zero vulnerabilities and every one of the 25 exact commands in `.factory/claims.json` passed. `npm test` passed 8 checks, `npm run realtime:test` passed 3 checks, and `npm run realtime:build` plus `npm run build` passed. The clean main bundle's SHA-256 matched the deployed main bundle exactly.
+
+Fresh live desktop and 390×844 phone contexts showed the job, intended small-group audience, game board, and **Try it with sample data** action before scrolling. The sample label remained present; deterministic win, loss, restart, reset, keyboard, reduced motion, focus, same-origin traffic, automated axe, and URL verification passed. The live throttled-phone measurement was 60.24 fps.
+
+Four independent live room clients received different roles, a fifth was rejected, a client reconnected safely, restart changed topology and roles, two route plans won, a third lost, and room deletion returned every client to the form and removed the server record. Two separately created rooms did not expose one another's data. Live health reported implementation `cad187f…` and durable `/data`; lookup allowance correctly ended in 429 with `Retry-After`.
+
+The detailed committed report is [.factory/verification-5.md](verification-5.md). Runtime captures and headers are in `/work/.evidence/signal-school-verify-5/`; the factory-required copy is `/work/.evidence/qa-report.md` and its machine-readable verdict is `/work/.evidence/qa-result.json`.
