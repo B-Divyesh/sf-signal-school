@@ -4,7 +4,7 @@
 
 All eight findings in [verification 1](verification-1.md) are repaired in the deployed candidate. Signal School remains a two-to-four-player cooperative signal-routing game for curious adults, teams, and older children. On first view it states the job, who it is for, and the first action: **Try it with sample data** opens the populated three-round practice board.
 
-The live static candidate is `67d76b89bee43ee04c366518a15a2f67f8879baa`. Its application repair is `fa23702117cc348325df2225356251d5cf53bc31`; the later static-only commit supplies the CSP-safe standalone 404 page. The deployed realtime image reports build `fa23702117cc348325df2225356251d5cf53bc31` and `storage: "/data"` at `/health`. The service remains one replica with the existing durable `/data` mount.
+The live static candidate is `67d76b89bee43ee04c366518a15a2f67f8879baa`. Its application repair is `fa23702117cc348325df2225356251d5cf53bc31`; the later static-only commit supplies the CSP-safe standalone 404 page. The deployed realtime image reports build `fa23702117cc348325df2225356251d5cf53bc31` and `storage: "/data"` at `/health`. The service remains one replica with the existing durable `/data` mount. The later documentation/test revision is `ac288e45d40f600d6c28e4d8a2a8e85e605f13af`; it does not change the deployed runtime.
 
 ## What changed
 
