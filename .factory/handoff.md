@@ -1,5 +1,15 @@
 # Signal School handoff
 
+## Review 2 — PASS
+
+Strict review 2 passed with **0 findings and 0 untested claims**. It reviewed static implementation `b21d658fe61e4fbe7de93ddadc8a99d96017f2c8`, unchanged realtime implementation `fa23702117cc348325df2225356251d5cf53bc31`, and pre-report documentation `f1e024fb4315380e8921d66a587fe1bb19529f1b`.
+
+No product code changed. From clean `npm ci`, all 23 declared claim commands passed separately; `npm test` passed 7 tests, `npm run test:browser` passed 34 browser checks with 2 expected skips, `npm run realtime:test` passed 2 service checks, and realtime/build commands passed. Local candidate HTML, JavaScript, and CSS hashes match live.
+
+Fresh live desktop and phone samples showed the job, audience, first action, populated board, persistent demo label, practice teammates, win/loss/restart, reset isolation, keyboard, reduced motion, 200% text, and no sample cross-origin request. `verify-url.sh` and Playwright axe passed. The phone 4×-throttled frame check measured 59.88 fps. Four independent room clients received all four intended role views, a fifth was rejected, a guest reconnected after reload, and the clients reached shared win, loss, and restart. Live health reports `/data`; a reserved test-address check received 429 and `Retry-After: 60`.
+
+Evidence and the full report are in [review 2](review-2.md) and `/work/.evidence/signal-school-review-2/`. The separately named verification-4 evidence directory was unavailable in this worker, but the complete committed [verification 4](verification-4.md) report was reviewed and agrees with this result.
+
 ## Verification 4 — PASS
 
 Independent QA reviewed live static implementation `b21d658fe61e4fbe7de93ddadc8a99d96017f2c8`, realtime implementation `fa23702117cc348325df2225356251d5cf53bc31`, and pre-report documentation revision `04c3791ae220535e694eef0f3fa51ff787db11bc`.
