@@ -1,51 +1,49 @@
 # Signal School handoff
 
-## Verification 1 (2026-09-06): FAIL
+## Repair status
 
-Independent QA reviewed runtime implementation `0078eab2f79ec9a295bce7edccfcb92dc9ac5689` and documentation/test revision `b889bd51ce77fbc38524a25351c0d3edd0b1c2b3`. The clean aggregate suite passes and live desktop/phone samples, shared win/restart, loss, accessibility baseline, health, and rate limit were exercised. The product is nevertheless **not accepted**: `.factory/verification-1.md` records 8 findings and 6 untested/incomplete claims. Key blockers are invalid declared Vitest claim commands and browser clients that cannot restore a room after refresh. No product code was changed by this verification.
+All eight findings in [verification 1](verification-1.md) are repaired in the deployed candidate. Signal School remains a two-to-four-player cooperative signal-routing game for curious adults, teams, and older children. On first view it states the job, who it is for, and the first action: **Try it with sample data** opens the populated three-round practice board.
 
-Evidence is under `/work/.evidence/signal-school-verify-1/`; the factory QA result is `/work/.evidence/qa-result.json`.
+The live static candidate is `67d76b89bee43ee04c366518a15a2f67f8879baa`. Its application repair is `fa23702117cc348325df2225356251d5cf53bc31`; the later static-only commit supplies the CSP-safe standalone 404 page. The deployed realtime image reports build `fa23702117cc348325df2225356251d5cf53bc31` and `storage: "/data"` at `/health`. The service remains one replica with the existing durable `/data` mount.
 
-## Shipped
+## What changed
 
-Signal School is a finished three-round cooperative signal-routing game for two to four players. The first screen shows an active storm relay board, an immediate sample action, a labelled practice team, keyboard route controls, pause, reduced motion, win/loss, restart, legal routes, and an isolated `/demo` sandbox.
+| Earlier finding | Disposition |
+| --- | --- |
+| V1-01 invalid Vitest commands | Replaced `--grep` with Vitest's supported `-t` option. Every declared claim command now runs after `npm ci`. |
+| V1-02 refresh loses a room | The browser saves only the room code and selected display name in `signal-school:room-session`, resumes automatically after refresh, clears stale sessions, and offers **Leave room**. A two-browser Playwright run reloads the guest, wins, and restarts. |
+| V1-03 phone board below the fold | The 390×844 demo keeps the job, audience, action, and 198 pixels of the active relay board in the first viewport. |
+| V1-04 successful unknown route | Known SPA routes are explicitly rewritten. Unknown routes now return the designed standalone page with HTTP 404. |
+| V1-05 dead factory link | The required footer attribution is now product-local text, with no unreliable external link. |
+| V1-06 fewer than 20 cards | Free practice has eight finished cards and the Scenario Set retains twelve paid cards, for twenty distinct three-round topologies. |
+| V1-07 no phone frame-rate proof | Added a 390px Chromium claim check under 4× CPU throttling. The live median was 16.7 ms, or 59.88 fps. |
+| V1-08 incomplete assertions | The Scenario Set check reads all four displayed role views; the route-title check asserts the fallback title. |
 
-The product also has real online rooms at `wss://signal-school-realtime.sociobot.in/ws`. The owned `sf-signal-school-realtime` container assigns distinct role views, requires shared route agreement, restores a reconnect, persists room state, reaches win/loss, and lets the host restart. Its durable state is a SQLite snapshot at `/data/rooms.sqlite`; the active connection uses a local SQLite working copy and synchronously snapshots after each mutation because Azure Files does not support SQLite's shared locking reliably. The container is single revision / one replica, so one writer owns that snapshot.
-
-The browser bundle locally bundles Chivo and IBM Plex Mono. Board, flags, weather marks, icons, and social card are original hand-authored assets. The visual plan and provenance are in `.factory/design.md`.
-
-The free run has Tide Lines, Fog Junction, and Headland Loop. The built-in one-time Scenario Set contains twelve more cards and rotating role views. It remains present but cannot be bought or activated until billing registration.
+The standalone 404 now has a header, footer, skip link, route-specific title, visible return link, and self-hosted `404.css`; it does not use a CSP-blocked inline style.
 
 ## Verification
 
-Implementation SHA deployed to both services: `0078eab2f79ec9a295bce7edccfcb92dc9ac5689`.
+- Clean setup: `npm ci`, then every command in `.factory/claims.json` passed. `npm run test:all` also passed: 6 Vitest tests, 20 Playwright passes across desktop and phone (2 expected project-specific skips), realtime TypeScript build, and Vite build.
+- Production bundle: 11.18 KB gzip JavaScript, 4.11 KB gzip CSS, 44.89 KB local WOFF2 fonts, and 168,102 B deployed static artifacts.
+- Live demo: `/opt/fleet/lib/verify-url.sh https://signal-school.sociobot.in/demo /work/.evidence/signal-school-repair-1` passed with no console errors, `lang="en"`, one `h1`, `main`, and labelled controls. Live axe found no serious or critical issue.
+- Live desktop: the fresh demo showed the job, audience, action, and board; the Split/Split/Read + split path reached **Six signals delivered** and restarted. The West/West/Old plan path reached **Run ended** with its debrief.
+- Live phone: the fresh 390×844 demo had the board at 592 px with 198 visible pixels. Reduced motion set `data-reduce-motion="true"`; key `1` advanced to round two.
+- Live rooms: independent fresh browser contexts received Relay runner and Weather reader views. The guest refreshed into the same room, both clients agreed three Split plans, reached the shared win, and the host restarted the room.
+- Live service: `/health` reports the deployed SHA and `/data`; 42 room lookups ended in HTTP 429 with `Retry-After: 2`.
+- Live routes: `/`, `/demo`, `/privacy`, `/terms`, `robots.txt`, `sitemap.xml`, and `404.css` return 200. `/not-a-route` returns HTTP 404, title **Page not found — Signal School**, and the complete fallback structure.
 
-- Clean checkout: `npm ci && npm run test:all` passed. The final working tree also passed `npm run test:all`: five Vitest checks, sixteen desktop/phone Playwright checks, realtime compilation, and production build.
-- Unit/integration: five current Vitest checks cover deterministic end/restart, Scenario Set content, independent room views, four-player bounds, shared win, reconnect, process-restart persistence, and rate limiting.
-- Browser: Playwright checks desktop and 390px phone flows, demo isolation, keyboard controls, settings persistence, sample request privacy, end/restart, titles/404, Scenario Set rendering, and axe serious/critical findings.
-- Static build: `npm run build` produces `dist/`; initial JS is 10.46 KB gzip, CSS 3.70 KB gzip, and first-use WOFF2 fonts total 44.89 KB. Total deployed artifacts were 161 KB.
-- Live: `verify-url.sh https://signal-school.sociobot.in/demo` passed: title, `lang`, one `h1`, `main`, image alts, labelled buttons, and no console errors. Evidence is under `/work/.evidence/signal-school-live/`.
-- Live browser: fresh desktop demo reached **Six signals delivered** and restarted. Fresh phone and desktop both showed the job, audience copy, sample action, and game before scrolling. Two independent live browser contexts received Relay runner/Weather reader views, agreed three Split plans, won, and restarted their room.
-- Live service: `/health` returned build `0078eab…` and `/data` storage. A live allowance test returned HTTP 429 with `Retry-After: 36` after 45 requests.
-- Lighthouse live mobile run: Performance 100, Accessibility 100, FCP 1.2 s, LCP 1.3 s, CLS 0. Evidence: `/work/.evidence/signal-school-live/lighthouse.json`.
+Evidence is in `/work/.evidence/signal-school-repair-1/`, including desktop win/loss and first-phone screenshots, browser results, frame-rate measurement, rate-limit response, and the worker verification report.
 
-## Deployment
+## Run and deploy
 
-- Static app: `https://signal-school.sociobot.in`
-- Room service: `https://signal-school-realtime.sociobot.in/health`
-- Room service image: `sociobotregistry.azurecr.io/sf-signal-school-realtime@sha256:231b7bd45b90cdb1f416c16eab0c9a3c50b38486531ff03422c4bdbfc5085e12`
-- Durable share: `sf-signal-school-realtime-data` mounted at `/data`; one replica bound preserved.
+```bash
+npm ci
+npm run test:all
+npm run build
+```
 
-Early container revisions were diagnostic failures caused first by the runtime image missing `package.json` for ESM, then by Azure Files SQLite lock behavior. They were deactivated. The current revision is healthy with zero restarts.
+Deploy the one-replica durable room service before `dist/` as documented in `README.md`. Do not remove `/data` or increase the realtime replica count.
 
-## Paid offer and known gap
+## Remaining external dependency
 
-There was no published or registered Signal School offer in the supplied history. The public metadata is written to `/work/.evidence/billing-offer.json` with `price_minor` and `currency` intentionally `null`; no price was guessed. `.factory/catalog-description.txt` is copied to `/work/.evidence/catalog-description.txt`.
-
-Checkout, license activation, and a price are therefore unavailable. The future license path is implemented as `GET https://api.sociobot.in/api/v1/products/signal-school/verify?license=<token>` and the Terms page says this plainly. Registration is the remaining external operator dependency; do not claim purchase or activation works until it is registered and verified end to end.
-
-## Next steps
-
-1. Register the one-time `signal-school` Scenario Set offer with an actual price and currency, then run hosted checkout, redirect, license restore, and verification tests.
-2. Run moderated group playtests against the brief's success measure; the product makes no validated-learning claim today.
-3. Add room expiry or a host leave action if long-lived anonymous room records become a concern.
+The one-time Scenario Set offer is still not registered. Its cards and license-verification path remain in the product, while checkout, a price, and activation stay unavailable. Public registration metadata is at `/work/.evidence/billing-offer.json`; no price or provider credential was guessed or added. The free core and online rooms work without billing.
