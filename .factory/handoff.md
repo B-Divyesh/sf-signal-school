@@ -1,5 +1,13 @@
 # Signal School handoff
 
+## Review 1
+
+Fresh strict QA on 2026-09-06 is a **FAIL**: 2 findings and 0 untested declared claims. The static implementation reviewed is `67d76b89bee43ee04c366518a15a2f67f8879baa`; realtime is `fa23702117cc348325df2225356251d5cf53bc31`; the report/documentation revision is `92beb0b71b3b5d57453cd4a96b231e359a2b780c`.
+
+The detailed report is [review 1](review-1.md). No product code was changed. Every existing declared claim command passed after `npm ci`; `npm run build` and `npm run realtime:test` passed. Live desktop and phone sample paths, win/loss/restart, demo isolation, keyboard/reduced motion, live axe, route titles/404, invalid-room recovery, independent client views/reconnect/shared win/restart, health, persistence evidence, and 429/Retry-After were exercised.
+
+Required repair: the **How to play** and **Scenario set** header links are dead on the Privacy and Terms pages because their local targets do not exist. Also add tests and inventory entries for public claims currently absent from `.factory/claims.json`, including the no-analytics/no-profile privacy promise, player range, pause behavior, free-card count, and no-tracker/no-third-party-font promise. Evidence is in `/work/.evidence/signal-school-review-1/`.
+
 ## Verification 2
 
 Independent QA on 2026-09-06 is a **PASS**: 0 findings and 0 untested claims. The reviewed live static implementation is `67d76b89bee43ee04c366518a15a2f67f8879baa`; the reviewed realtime implementation is `fa23702117cc348325df2225356251d5cf53bc31`; documentation and tests are `01c918e27f979af502ab6926961903f979958885`.
