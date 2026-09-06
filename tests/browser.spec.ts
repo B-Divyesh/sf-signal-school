@@ -19,6 +19,11 @@ test('@claim:demo-isolation keeps sample progress separate from a real practice 
   const isolated = await page.evaluate(() => ({ real: localStorage.getItem('signal-school:run'), demo: localStorage.getItem('demo:signal-school:run') }));
   expect(isolated.real).toBe(realAfterFirstRound);
   expect(isolated.demo).not.toBe(isolated.real);
+  await page.getByRole('button', { name: 'Reset demo' }).click();
+  await expect(page.getByText('Round 1 of 3')).toBeVisible();
+  const reset = await page.evaluate(() => ({ real: localStorage.getItem('signal-school:run'), demo: JSON.parse(localStorage.getItem('demo:signal-school:run') || '{}') }));
+  expect(reset.real).toBe(realAfterFirstRound);
+  expect(reset.demo).toMatchObject({ phase: 'active', roundIndex: 0, delivered: 0 });
 });
 
 test('@claim:keyboard-routes chooses a route with number keys', async ({ page }) => {

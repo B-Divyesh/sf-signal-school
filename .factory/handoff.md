@@ -25,7 +25,7 @@ The standalone 404 now has a header, footer, skip link, route-specific title, vi
 
 - Clean setup: `npm ci`, then every command in `.factory/claims.json` passed. `npm run test:all` also passed: 6 Vitest tests, 20 Playwright passes across desktop and phone (2 expected project-specific skips), realtime TypeScript build, and Vite build.
 - Production bundle: 11.18 KB gzip JavaScript, 4.11 KB gzip CSS, 44.89 KB local WOFF2 fonts, and 168,102 B deployed static artifacts.
-- Live demo: `/opt/fleet/lib/verify-url.sh https://signal-school.sociobot.in/demo /work/.evidence/signal-school-repair-1` passed with no console errors, `lang="en"`, one `h1`, `main`, and labelled controls. Live axe found no serious or critical issue.
+- Live demo: `/opt/fleet/lib/verify-url.sh https://signal-school.sociobot.in/demo /work/.evidence/signal-school-repair-1` passed with no console errors, `lang="en"`, one `h1`, `main`, and labelled controls. **Reset demo** returned the sample to round one while leaving the real-practice key unchanged. Live axe found no serious or critical issue.
 - Live desktop: the fresh demo showed the job, audience, action, and board; the Split/Split/Read + split path reached **Six signals delivered** and restarted. The West/West/Old plan path reached **Run ended** with its debrief.
 - Live phone: the fresh 390×844 demo had the board at 592 px with 198 visible pixels. Reduced motion set `data-reduce-motion="true"`; key `1` advanced to round two.
 - Live rooms: independent fresh browser contexts received Relay runner and Weather reader views. The guest refreshed into the same room, both clients agreed three Split plans, reached the shared win, and the host restarted the room.
