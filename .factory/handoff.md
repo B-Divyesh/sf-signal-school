@@ -1,5 +1,11 @@
 # Signal School handoff
 
+## Verification 1 (2026-09-06): FAIL
+
+Independent QA reviewed runtime implementation `0078eab2f79ec9a295bce7edccfcb92dc9ac5689` and documentation/test revision `b889bd51ce77fbc38524a25351c0d3edd0b1c2b3`. The clean aggregate suite passes and live desktop/phone samples, shared win/restart, loss, accessibility baseline, health, and rate limit were exercised. The product is nevertheless **not accepted**: `.factory/verification-1.md` records 8 findings and 6 untested/incomplete claims. Key blockers are invalid declared Vitest claim commands and browser clients that cannot restore a room after refresh. No product code was changed by this verification.
+
+Evidence is under `/work/.evidence/signal-school-verify-1/`; the factory QA result is `/work/.evidence/qa-result.json`.
+
 ## Shipped
 
 Signal School is a finished three-round cooperative signal-routing game for two to four players. The first screen shows an active storm relay board, an immediate sample action, a labelled practice team, keyboard route controls, pause, reduced motion, win/loss, restart, legal routes, and an isolated `/demo` sandbox.
