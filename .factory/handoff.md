@@ -71,3 +71,13 @@ Fresh live desktop and 390×844 phone contexts showed the job, intended small-gr
 Four independent live room clients received different roles, a fifth was rejected, a client reconnected safely, restart changed topology and roles, two route plans won, a third lost, and room deletion returned every client to the form and removed the server record. Two separately created rooms did not expose one another's data. Live health reported implementation `cad187f…` and durable `/data`; lookup allowance correctly ended in 429 with `Retry-After`.
 
 The detailed committed report is [.factory/verification-5.md](verification-5.md). Runtime captures and headers are in `/work/.evidence/signal-school-verify-5/`; the factory-required copy is `/work/.evidence/qa-report.md` and its machine-readable verdict is `/work/.evidence/qa-result.json`.
+
+## Review 4 — PASS
+
+Strict review 4 made no product-code changes and found **0 findings** and **0 untested claims**. It reviewed implementation `cad187f558c5faabb8802824806b7674241925dd` and documentation revision `cb7a633c523c059217a69d23aba0574b981e7557`; the live static JavaScript SHA-256 exactly matched the clean candidate build, and live health reported that implementation with durable `/data` storage.
+
+On clean Node 22.23.2 setup, `npm ci` completed with zero vulnerabilities. All 25 declared claim commands passed separately. `npm test` passed 8 checks, `npm run realtime:test` passed 3, `npm run realtime:build` and `npm run build` passed, and the full 38-check browser suite recorded `passed` with no failures.
+
+Fresh live desktop and 390×844 phone checks showed the job, audience, first action, and game board without scrolling. The sample banner, populated practice board, teammates, win, restart, reset, real/demo isolation, reduced motion, visible keyboard focus, no serious/critical Playwright axe finding, and no-console-error URL verification all passed. The live throttled-phone measurement was 60.24 fps.
+
+Four new real browser clients received distinct roles; a fifth was rejected; a guest reconnected after reload; two varied-topology wins and one loss completed; and the host-confirmed deletion returned both remaining players to the room form and made the room lookup 404. Live rate limiting returned 429 with `Retry-After: 59` from a reserved test address. The detailed report is [.factory/review-4.md](review-4.md); evidence is in `/work/.evidence/signal-school-review-4/`.
