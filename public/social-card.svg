@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="A storm relay board with three connected beacons">
+ <rect width="1200" height="630" fill="#073b3a"/><path d="M0 130C160 65 300 190 470 120S830 35 1200 150V0H0z" fill="#104d4b"/><path d="M0 520C230 430 390 575 625 485s370 2 575-100v245H0z" fill="#0d4543"/>
+ <g fill="none" stroke="#f4d985" stroke-width="14" stroke-linecap="round"><path d="M245 390 555 195 910 355"/><path d="m555 195 150 220" stroke="#91d8bf"/></g>
+ <g stroke="#073b3a" stroke-width="12"><circle cx="245" cy="390" r="52" fill="#ef7863"/><circle cx="555" cy="195" r="58" fill="#f4d985"/><circle cx="705" cy="415" r="52" fill="#91d8bf"/><circle cx="910" cy="355" r="52" fill="#8e7bb7"/></g>
+ <g fill="#073b3a" font-family="sans-serif" font-weight="800"><text x="80" y="105" font-size="68">SIGNAL SCHOOL</text><text x="80" y="575" font-size="34">Route signals together before the storm</text></g>
+</svg>

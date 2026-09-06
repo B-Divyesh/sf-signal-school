@@ -1,0 +1,86 @@
+[
+  {
+    "id": "three-round-ending",
+    "claim": "A practice run ends after three rounds.",
+    "where": "game board, README",
+    "test": "npm test -- --grep @claim:three-round-ending",
+    "sandbox": "start a fresh deterministic practice run and submit the successful route three times"
+  },
+  {
+    "id": "restart-reset",
+    "claim": "Restart clears the prior practice run.",
+    "where": "end screen, README",
+    "test": "npm test -- --grep @claim:restart-reset",
+    "sandbox": "complete one round, restart, then inspect the active round and delivered count"
+  },
+  {
+    "id": "scenario-set-content",
+    "claim": "The Scenario Set contains twelve more topology cards with rotating role views.",
+    "where": "Scenario Set section, README",
+    "test": "npm test -- --grep @claim:scenario-set-content",
+    "sandbox": "inspect the content model for twelve distinct topology descriptions and four roles"
+  },
+  {
+    "id": "demo-isolation",
+    "claim": "Sample progress stays separate from a saved practice run.",
+    "where": "demo banner, privacy page",
+    "test": "npm run test:browser -- --grep @claim:demo-isolation",
+    "sandbox": "play one real round, play a demo round, and compare their separate browser storage values"
+  },
+  {
+    "id": "keyboard-routes",
+    "claim": "Keys 1, 2, and 3 choose routes during a practice run.",
+    "where": "game controls, README",
+    "test": "npm run test:browser -- --grep @claim:keyboard-routes",
+    "sandbox": "open the demo and send the 1 key to advance to the next round"
+  },
+  {
+    "id": "settings-persist",
+    "claim": "The motion setting remains after reload.",
+    "where": "game controls",
+    "test": "npm run test:browser -- --grep @claim:settings-persist",
+    "sandbox": "turn on reduced motion, reload the demo, and check the pressed state"
+  },
+  {
+    "id": "demo-no-external-requests",
+    "claim": "The sample run makes no cross-origin request.",
+    "where": "privacy page, demo behavior",
+    "test": "npm run test:browser -- --grep @claim:demo-no-external-requests",
+    "sandbox": "record all requests during a complete demo run and allow only the local product origin"
+  },
+  {
+    "id": "browser-end-screen",
+    "claim": "A complete practice run shows a result and can restart.",
+    "where": "game end screen",
+    "test": "npm run test:browser -- --grep @claim:browser-end-screen",
+    "sandbox": "play the successful demo path through its debrief and restart it"
+  },
+  {
+    "id": "accessibility-basics",
+    "claim": "The demo has no serious or critical automated accessibility finding.",
+    "where": "quality documentation",
+    "test": "npm run test:browser -- --grep @claim:accessibility-basics",
+    "sandbox": "run axe against the fresh demo screen"
+  },
+  {
+    "id": "route-titles",
+    "claim": "Demo, Privacy, Terms, and the fallback page have route-specific titles.",
+    "where": "document metadata",
+    "test": "npm run test:browser -- --grep @claim:route-titles",
+    "sandbox": "open each route and read the browser title and fallback heading"
+  },
+  {
+    "id": "online-rooms",
+    "claim": "Online rooms give real clients different role views, recover a reconnect, and resolve shared runs.",
+    "where": "online room panel, README",
+    "test": "npm test -- --grep @claim:online-rooms",
+    "sandbox": "start product-owned local WebSocket service, connect independent clients, rejoin one, agree three routes, restart, then reopen durable SQLite state"
+  },
+  {
+    "id": "room-rate-limit",
+    "claim": "The room service returns 429 with Retry-After after its request allowance.",
+    "where": "service quality documentation",
+    "test": "npm test -- --grep @claim:room-rate-limit",
+    "sandbox": "send requests past the service allowance and inspect the final HTTP status and header"
+  }
+]
