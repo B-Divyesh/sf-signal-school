@@ -10,6 +10,7 @@ ARG BUILD_SHA=dev
 ENV NODE_ENV=production BUILD_SHA=$BUILD_SHA PORT=8080 DATA_DIR=/data
 WORKDIR /app
 COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/realtime/dist ./realtime/dist
 RUN mkdir -p /data && chown -R node:node /app /data
 USER node
