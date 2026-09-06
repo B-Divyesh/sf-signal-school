@@ -15,4 +15,4 @@ COPY --from=build /app/realtime/dist ./realtime/dist
 RUN mkdir -p /data && chown -R node:node /app /data
 USER node
 EXPOSE 8080
-CMD ["sh", "-c", "sleep 900"]
+CMD ["node", "realtime/dist/server.js"]

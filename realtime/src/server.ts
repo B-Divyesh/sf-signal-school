@@ -46,8 +46,9 @@ export function createRealtimeServer(options: RealtimeOptions = {}): RealtimeIns
   const databasePath = options.databasePath || dataPath();
   mkdirSync(dirname(databasePath), { recursive: true });
   const db = new Database(databasePath);
-  // Azure Files is durable for this single replica but does not provide the
-  // locking behavior SQLite WAL expects. DELETE mode is safe for one writer.
+  // This service is pinned to one replica. Keeping one exclusive SQLite
+  // connection avoids Azure Files' unreliable shared-lock negotiation.
+  db.pragma('locking_mode = EXCLUSIVE');
   db.pragma('journal_mode = DELETE');
   db.pragma('busy_timeout = 5000');
   db.exec(`
