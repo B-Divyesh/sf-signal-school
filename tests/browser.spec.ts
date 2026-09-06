@@ -163,23 +163,42 @@ test('@claim:leave-room clears the saved room session so reload does not reconne
   expect(await page.evaluate(() => localStorage.getItem('signal-school:room-session'))).toBeNull();
 });
 
-test('@claim:room-data-deletion lets the host remove a room from the product service', async ({ page }) => {
-  await page.goto('/');
-  const createForm = page.locator('[data-form="create-room"]');
-  await createForm.getByLabel('Your name').fill('Ari');
-  await createForm.getByRole('button', { name: 'Create room' }).click();
-  const heading = page.getByRole('heading', { name: /Room [A-Z0-9]{6}/ });
-  await expect(heading).toBeVisible();
-  const code = (await heading.textContent())!.replace('Room ', '');
-  page.once('dialog', (dialog) => dialog.accept());
-  await page.getByRole('button', { name: 'Delete room data' }).click();
-  await expect(page.locator('[data-form="create-room"]')).toBeVisible();
-  await expect(page.getByText('The host deleted this room and its server data.')).toBeVisible();
-  const exists = await page.evaluate(async (roomCode) => {
-    const response = await fetch(`http://127.0.0.1:8080/rooms/${roomCode}`);
-    return response.status;
-  }, code);
-  expect(exists).toBe(404);
+test('@claim:room-data-deletion lets the host remove a room from the product service for every player', async ({ browser }) => {
+  const hostContext = await browser.newContext();
+  const guestContext = await browser.newContext();
+  const host = await hostContext.newPage();
+  const guest = await guestContext.newPage();
+  try {
+    await host.goto('/');
+    const createForm = host.locator('[data-form="create-room"]');
+    await createForm.getByLabel('Your name').fill('Ari');
+    await createForm.getByRole('button', { name: 'Create room' }).click();
+    const heading = host.getByRole('heading', { name: /Room [A-Z0-9]{6}/ });
+    await expect(heading).toBeVisible();
+    const code = (await heading.textContent())!.replace('Room ', '');
+
+    await guest.goto('/');
+    const joinForm = guest.locator('[data-form="join-room"]');
+    await joinForm.getByLabel('Room code').fill(code);
+    await joinForm.getByLabel('Your name').fill('Bo');
+    await joinForm.getByRole('button', { name: 'Join room' }).click();
+    await expect(guest.getByRole('heading', { name: `Room ${code}` })).toBeVisible();
+
+    host.once('dialog', (dialog) => dialog.accept());
+    await host.getByRole('button', { name: 'Delete room data' }).click();
+    await expect(host.locator('[data-form="create-room"]')).toBeVisible();
+    await expect(guest.locator('[data-form="create-room"]')).toBeVisible();
+    await expect(host.getByText('The host deleted this room and its server data.')).toBeVisible();
+    await expect(guest.getByText('The host deleted this room and its server data.')).toBeVisible();
+    const exists = await host.evaluate(async (roomCode) => {
+      const response = await fetch(`http://127.0.0.1:8080/rooms/${roomCode}`);
+      return response.status;
+    }, code);
+    expect(exists).toBe(404);
+  } finally {
+    await hostContext.close();
+    await guestContext.close();
+  }
 });
 
 test('header section links reach their named landing sections from each legal page', async ({ page }) => {
