@@ -11,19 +11,36 @@ const winDemo = async (page: import('@playwright/test').Page) => {
 test('@claim:demo-isolation keeps sample progress separate from a real practice run', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /start three rounds/i }).click();
-  await page.getByRole('button', { name: /split/i }).click();
-  const realAfterFirstRound = await page.evaluate(() => localStorage.getItem('signal-school:run'));
+  await page.getByRole('button', { name: /west/i }).click();
+  await expect(page.getByText('Round 2 of 3')).toBeVisible();
+  const realAfterFirstRound = await page.evaluate(() => JSON.parse(localStorage.getItem('signal-school:run') || 'null'));
+  expect(realAfterFirstRound).toMatchObject({ phase: 'active', roundIndex: 1, delivered: 1, choices: ['west'] });
+
   await page.goto('/demo');
   await expect(page.getByLabel('Demo status')).toContainText('sample data, nothing is saved');
+  await expect(page.getByText('Round 1 of 3')).toBeVisible();
   await page.getByRole('button', { name: /split/i }).click();
-  const isolated = await page.evaluate(() => ({ real: localStorage.getItem('signal-school:run'), demo: localStorage.getItem('demo:signal-school:run') }));
-  expect(isolated.real).toBe(realAfterFirstRound);
-  expect(isolated.demo).not.toBe(isolated.real);
+  await expect(page.getByText('Round 2 of 3')).toBeVisible();
+  const isolated = await page.evaluate(() => ({
+    real: JSON.parse(localStorage.getItem('signal-school:run') || 'null'),
+    demo: JSON.parse(localStorage.getItem('demo:signal-school:run') || 'null')
+  }));
+  expect(isolated.real).toEqual(realAfterFirstRound);
+  expect(isolated.demo).toMatchObject({ phase: 'active', roundIndex: 1, delivered: 2, choices: ['split'] });
+
   await page.getByRole('button', { name: 'Reset demo' }).click();
   await expect(page.getByText('Round 1 of 3')).toBeVisible();
-  const reset = await page.evaluate(() => ({ real: localStorage.getItem('signal-school:run'), demo: JSON.parse(localStorage.getItem('demo:signal-school:run') || '{}') }));
-  expect(reset.real).toBe(realAfterFirstRound);
+  const reset = await page.evaluate(() => ({
+    real: JSON.parse(localStorage.getItem('signal-school:run') || 'null'),
+    demo: JSON.parse(localStorage.getItem('demo:signal-school:run') || 'null')
+  }));
+  expect(reset.real).toEqual(realAfterFirstRound);
   expect(reset.demo).toMatchObject({ phase: 'active', roundIndex: 0, delivered: 0 });
+
+  await page.getByRole('link', { name: 'Start for real' }).click();
+  await expect(page.getByText('Round 2 of 3')).toBeVisible();
+  await expect(page.getByText(/one note waits in the west queue/i)).toBeVisible();
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('signal-school:run') || 'null'))).toEqual(realAfterFirstRound);
 });
 
 test('@claim:keyboard-routes chooses a route with number keys', async ({ page }) => {

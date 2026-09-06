@@ -25,7 +25,7 @@
     "claim": "Sample progress stays separate from a saved practice run.",
     "where": "demo banner, privacy page",
     "test": "npm run test:browser -- --grep @claim:demo-isolation",
-    "sandbox": "play one real round, play a demo round, and compare their separate browser storage values"
+    "sandbox": "save a real West-route outcome, play and reset a demo Split-route outcome, then return to the unchanged real run"
   },
   {
     "id": "keyboard-routes",
