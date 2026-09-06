@@ -1,5 +1,13 @@
 # Signal School handoff
 
+## Verification 3 — FAIL
+
+Independent QA reviewed deployed static implementation `a0c3d29f060f3ae43a3f58103a36cd84e4133a2d`, realtime implementation `fa23702117cc348325df2225356251d5cf53bc31`, and documentation revision `ec45e98359cabdd49f58549f627516f628632b74`.
+
+The result is **FAIL: 1 finding, 0 untested declared claims**. The single issue is V3-01 in [verification 3](verification-3.md): the declared `demo-isolation` Playwright command intermittently fails because it compares two independent storage values and assumes they cannot be equal. It failed on the first clean invocation, then passed on a retry and five-repeat check. The demo's actual separate namespaces and reset behavior were observed; no real-data change was found. Make that outcome test deterministic before claiming a PASS.
+
+All other current QA passed: clean unit, realtime, build, individual claim commands, full browser suite (34 passed, 2 expected skips), live desktop/phone sample, win/loss/restart, reduced motion, keyboard, axe, legal anchors, routes/404, privacy request behavior, live independent room views/reconnect/shared outcomes, health durable-storage report, and 429/Retry-After. Evidence is in `/work/.evidence/signal-school-verify-3/`.
+
 ## Repair 2 — complete
 
 Static implementation, claims, tests, and documentation are committed and pushed as `a0c3d29f060f3ae43a3f58103a36cd84e4133a2d`. Static deployment `66f1deb4-9ec1-4693-93e5-ae4b473b1932` completed successfully to `https://signal-school.sociobot.in`. The room service has no code change and remains on its proven durable one-replica implementation `fa23702117cc348325df2225356251d5cf53bc31`, with SQLite at `/data`.
