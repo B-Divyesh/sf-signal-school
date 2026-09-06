@@ -46,7 +46,10 @@ export function createRealtimeServer(options: RealtimeOptions = {}): RealtimeIns
   const databasePath = options.databasePath || dataPath();
   mkdirSync(dirname(databasePath), { recursive: true });
   const db = new Database(databasePath);
-  db.pragma('journal_mode = WAL');
+  // Azure Files is durable for this single replica but does not provide the
+  // locking behavior SQLite WAL expects. DELETE mode is safe for one writer.
+  db.pragma('journal_mode = DELETE');
+  db.pragma('busy_timeout = 5000');
   db.exec(`
     CREATE TABLE IF NOT EXISTS rooms (
       code TEXT PRIMARY KEY, scenario INTEGER NOT NULL, phase TEXT NOT NULL, round INTEGER NOT NULL,
