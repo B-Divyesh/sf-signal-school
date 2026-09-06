@@ -1,5 +1,24 @@
 # Signal School handoff
 
+## Review 3 — FAIL
+
+Strict live and clean-checkout review on 2026-09-06 found **6 findings and 4 untested or incompletely tested public claims**. No product code was changed. The full report is [review 3](review-3.md).
+
+Reviewed static implementation `b21d658fe61e4fbe7de93ddadc8a99d96017f2c8`, realtime implementation `fa23702117cc348325df2225356251d5cf53bc31`, and pre-report documentation revision `bec14e90395aae8ddadf246d8559cf24a2d4baf1`. The clean build's HTML, JavaScript, and CSS hashes match live.
+
+All 23 declared claim commands passed separately after a clean `npm ci`. `npm run test:all` passed 7 unit tests, 34 browser checks with 2 intended skips, realtime build, and production build. `npm run realtime:test` passed 2 integration tests. Fresh live desktop and phone runs passed win/loss/restart, sample reset isolation, keyboard, pause, settings, reduced motion, 200% text, axe, route, link, and performance checks. Four independent clients received four role texts, rejected a fifth, reconnected, reached shared win/loss/restart, left safely, and remained isolated from a second room. Live phone performance was 59.88 fps under 4× CPU throttling. Lighthouse scored 100 in all four categories with 1.1 s LCP, 30 ms blocking time, and 0 CLS.
+
+Required repairs:
+
+1. Make real room topology and role assignments vary across runs, and make each partial view affect routing outcomes.
+2. Replace the 17 cloned card bodies with finished scenario-specific rounds, then test distinct playable content rather than labels alone.
+3. Add server-room retention and deletion behavior, disclose every stored field, and provide a usable privacy-request path.
+4. Correct the WebSocket rate-limit wording or implement and test the promised observable behavior.
+5. Add a recorded-fixture claim test for future license verification or remove that public promise until it can be tested.
+6. Replace the metaphorical 404 sentence with direct page-not-found copy.
+
+Evidence is in `/work/.evidence/signal-school-review-3/`; required copies are `/work/.evidence/qa-report.md` and `/work/.evidence/qa-result.json`.
+
 ## Review 2 — PASS
 
 Strict review 2 passed with **0 findings and 0 untested claims**. It reviewed static implementation `b21d658fe61e4fbe7de93ddadc8a99d96017f2c8`, unchanged realtime implementation `fa23702117cc348325df2225356251d5cf53bc31`, and pre-report documentation `f1e024fb4315380e8921d66a587fe1bb19529f1b`.
